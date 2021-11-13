@@ -4,7 +4,7 @@
 package cmu_baude2d;
 
 /**
- * @author djbau
+ * @author baude2d
  *
  */
 public class Cyclist {
