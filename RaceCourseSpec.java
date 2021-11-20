@@ -35,7 +35,15 @@ class RaceCourseSpec {
 		});
 	}
 
-	
+	/* Test ideas:
+	 * 
+	 * Establish different hazards
+	 * Validate strings ... (Example: Precipitation == Rain, Snow, None, etc.
+	 * Length of slopeList (mList) == length of checkPointList (cPList)
+	 * Values in mList are in bounds? (We need to establish range for inclines
+	 * 
+	 * Add more if you have anything in mind!
+	 */
 	
 
 }
