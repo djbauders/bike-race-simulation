@@ -18,6 +18,7 @@ public class Utility {
 	//List to distinguish different slopes at different checkpoints
 	public static ArrayList<Double> mList = new ArrayList<Double>();
 
+	//Establish number of checkpoints in the race based on the length in miles
 	public static double createCheckPoints(double lengthInMiles) {
 		int numCP = (int) lengthInMiles / 2;
 		for(int i = 0; i < numCP; i++) {
@@ -26,6 +27,7 @@ public class Utility {
 		return (int) numCP;
 	}
 	
+	//Generate random slopes; Inclines range from [-10, 10]; Race start always has slope of 0;
 	public static void generateRandomSlopes(int cP) {
 		Random rand = new Random();
 		double randomSlope = ((Math.random() * (-10 - 10)) - 10);
@@ -36,11 +38,14 @@ public class Utility {
 		}
 	}
 	
+	//Check the current slope
 	public static double checkSlope(double cP) {
 		currSlope = mList.get((int) cP);
 		return currSlope;
 	}
 	
+	//Unnecessary calls for checking terrain and hazards;
+	//Change Simulation implementation to rc.getTerrain, or generate random terrain, etc.
 	public static String checkTerrain(double cP) {
 		String t = "None";
 		return t;
