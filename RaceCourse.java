@@ -19,8 +19,19 @@ public class RaceCourse {
 	
 	public RaceCourse() {}
 	
-	public RaceCourse(int lengthInMiles, int checkPoints, String terrain, String hazard, Weather weatherObj) {
+	public RaceCourse(int lengthInMiles, int checkPoints, double slope, String terrain, String hazard, Weather weatherObj) throws Exception {
+		if(lengthInMiles <= 0) {
+			throw new Exception("Length is less than or equal to 0");
+		}
+		if(checkPoints <= 0) {
+			throw new Exception("Checkpoints less than or equal to 1");
+		}
+		if(terrain == "" || hazard == "") {
+			throw new Exception("Strings are empty");
+		}
 		this.lengthInMiles = lengthInMiles;
+		this.checkPoints = checkPoints;
+		this.slope = slope;
 		this.terrain = terrain;
 		this.hazard = hazard;
 		this.weatherObj = weatherObj;
@@ -33,7 +44,22 @@ public class RaceCourse {
 	public void setLengthInMiles(int lengthInMiles) {
 		this.lengthInMiles = lengthInMiles;
 	}
+	
+	public int getCheckPoints() {
+		return checkPoints;
+	}
+	
+	public void setCheckPoitns(int checkPoints) {
+		this.checkPoints = checkPoints;
+	}
 
+	public double getSlope() {
+		return slope;
+	}
+	
+	public void setSlope(double slope) {
+		this.slope = slope;
+	}
 	public String getTerrain() {
 		return terrain;
 	}
