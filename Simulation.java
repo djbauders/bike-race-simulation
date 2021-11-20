@@ -8,7 +8,7 @@ package cmu_baude2d;
  *
  */
 public class Simulation extends Utility{
-	
+	//Testing objects; No simulating yet
 	public static void main(String[] args) throws Exception {
 		double standardLength = 70.3;
 		double checkPoints = createCheckPoints(standardLength);
