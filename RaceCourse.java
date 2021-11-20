@@ -9,8 +9,8 @@ package cmu_baude2d;
  */
 public class RaceCourse {
 
-	public int lengthInMiles;
-	public int checkPoints;
+	public double lengthInMiles;
+	public double checkPoints;
 	public String terrain;
 	public String hazard;
 	public double slope;
@@ -19,12 +19,12 @@ public class RaceCourse {
 	
 	public RaceCourse() {}
 	
-	public RaceCourse(int lengthInMiles, int checkPoints, double slope, String terrain, String hazard, Weather weatherObj) throws Exception {
+	public RaceCourse(double lengthInMiles, double checkPoints, double slope, String terrain, String hazard, Weather weatherObj) throws Exception {
 		if(lengthInMiles <= 0) {
 			throw new Exception("Length is less than or equal to 0");
 		}
 		if(checkPoints <= 0) {
-			throw new Exception("Checkpoints less than or equal to 1");
+			throw new Exception("Checkpoints less than or equal to 0");
 		}
 		if(terrain == "" || hazard == "") {
 			throw new Exception("Strings are empty");
@@ -37,15 +37,15 @@ public class RaceCourse {
 		this.weatherObj = weatherObj;
 	}
 	
-	public int getLengthInMiles() {
+	public double getLengthInMiles() {
 		return lengthInMiles;
 	}
 
-	public void setLengthInMiles(int lengthInMiles) {
+	public void setLengthInMiles(double lengthInMiles) {
 		this.lengthInMiles = lengthInMiles;
 	}
 	
-	public int getCheckPoints() {
+	public double getCheckPoints() {
 		return checkPoints;
 	}
 	
