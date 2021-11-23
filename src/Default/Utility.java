@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cmu_baude2d;
+package Default;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -54,5 +54,24 @@ public class Utility {
 	public static String checkHazards(double cP) {
 		String t = "None";
 		return t;
+	}
+	
+	
+	/**
+	 * 
+	 * @param massBike
+	 * @param massRider
+	 * @param grade
+	 * @return
+	 */
+	public static double calcRollingFriction(double massBike, double massRider, double grade) {
+		// g = Gravitational Acceleration (9.8 Meters per Second)
+		double g = 9.8;
+		// cR = Rolling Resistance Coefficent (0.004 - Bike Tire on Asphalt)
+		double cR = 0.004;
+		// B = ("Beta") Inclination Angle
+		double B = Math.atan(grade/100);
+		
+		return (g * (massBike + massRider)) * (cR * Math.cos(B) * Math.sin(B));
 	}
 }
