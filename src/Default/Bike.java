@@ -1,7 +1,4 @@
-/**
- * 
- */
-package cmu_baude2d;
+package Default;
 
 /**
  * @author baude2d, dunha2j
@@ -9,11 +6,24 @@ package cmu_baude2d;
  */
 public class Bike{
 	
-	public int wheelDiameter;
+	//private int wheelDiameter;
+	private double bikeWeight;
 
 	public Bike () {}
+
+	public double getBikeWeight() {
+		return bikeWeight;
+	}
+
+	public void setBikeWeight(double bikeWeight) {
+		this.bikeWeight = bikeWeight;
+	}
 	
+	
+	
+	/*
 	public Bike (int wheelDiameter) {
 		this.wheelDiameter = wheelDiameter;
 	}
+	*/
 }
