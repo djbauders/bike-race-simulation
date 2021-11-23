@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cmu_baude2d;
+package Default;
 
 /**
  * @author baude2d, dunha2j

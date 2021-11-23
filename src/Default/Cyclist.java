@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cmu_baude2d;
+package Default;
 
 /**
  * @author baude2d, dunha2j
@@ -10,15 +10,15 @@ package cmu_baude2d;
 public class Cyclist {
 
 	public Double riderWeight;
-	public int wattage;
+	public int riderFTP;
 	public String riderStyle;
 	public Bike bikeObj;
 	
 	public Cyclist () {}
 	
-	public Cyclist (Double riderWeight, int wattage, String riderStyle, Bike bikeObj) { 
+	public Cyclist (Double riderWeight, int riderFTP, String riderStyle, Bike bikeObj) { 
 		this.riderWeight = riderWeight;
-		this.wattage = wattage;
+		this.riderFTP = riderFTP;
 		this.riderStyle = riderStyle;
 		this.bikeObj = bikeObj;
 	}
@@ -39,12 +39,12 @@ public class Cyclist {
 		this.riderWeight = riderWeight;
 	}
 
-	public int getWattage() {
-		return wattage;
+	public int getRiderFTP() {
+		return this.riderFTP;
 	}
 
-	public void setWattage(int wattage) {
-		this.wattage = wattage;
+	public void setRiderFTP(int riderFTP) {
+		this.riderFTP = riderFTP;
 	}
 
 	public String getRiderStyle() {
@@ -53,6 +53,10 @@ public class Cyclist {
 
 	public void setRiderStyle(String riderStyle) {
 		this.riderStyle = riderStyle;
+	}
+	
+	public double getTotalWeight() {
+		return bikeObj.getBikeWeight() + this.riderWeight;
 	}
 	
 }

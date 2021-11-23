@@ -1,7 +1,7 @@
 /**
  * 
  */
-package cmu_baude2d;
+package Default;
 
 /**
  * @author baude2d, dunha2j
@@ -10,6 +10,7 @@ package cmu_baude2d;
 public class Simulation extends Utility{
 	//Testing objects; No simulating yet
 	public static void main(String[] args) throws Exception {
+		/*
 		double standardLength = 70.3;
 		double checkPoints = createCheckPoints(standardLength);
 		String terrain = checkTerrain(checkPoints);
@@ -25,6 +26,8 @@ public class Simulation extends Utility{
 		System.out.println("Precipitation: " + weatherObj.getPrecipitation());
 		System.out.println("Temperature: " + weatherObj.getTemperatureInF());
 		System.out.println("Visibility: " + weatherObj.getVisibility());
+		*/
+		System.out.println(Utility.calcRollingFriction(10, 90, 4));
 	}
 	
 }

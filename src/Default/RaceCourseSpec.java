@@ -1,4 +1,4 @@
-package cmu_baude2d;
+package Default;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
