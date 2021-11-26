@@ -5,12 +5,21 @@ package Default;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.Function;
+
+@FunctionalInterface
+interface Func {
+	double apply(double w, double cRVN, double cD, double A, double AD, double fRG, double cM, double p);
+	//double apply(double a, double b, double w, double cRVN, double cD, double A, double PAD);
+}
 
 /**
  * @author baude2d, dunha2j
  *	The Utility class consists of helper methods to assist in computations necessary for simulation.
  */
 public class Utility {
+
+	
 	//Current slope
 	public static double currSlope;
 	//List to index different checkpoints
@@ -56,22 +65,6 @@ public class Utility {
 		return t;
 	}
 	
-	
-	/**
-	 * 
-	 * @param massBike
-	 * @param massRider
-	 * @param grade
-	 * @return
-	 */
-	public static double calcRollingFriction(double massBike, double massRider, double grade) {
-		// g = Gravitational Acceleration (9.8 Meters per Second)
-		double g = 9.8;
-		// cR = Rolling Resistance Coefficent (0.004 - Bike Tire on Asphalt)
-		double cR = 0.004;
-		// B = ("Beta") Inclination Angle
-		double B = Math.atan(grade/100);
-		
-		return (g * (massBike + massRider)) * (cR * Math.cos(B) * Math.sin(B));
-	}
-}
+
+
+};

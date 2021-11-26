@@ -8,17 +8,31 @@ package Default;
  *
  */
 public class Cyclist {
-
-	public Double riderWeight;
-	public int riderFTP;
+	
+	public String name; 
+	public double mass;
+	public double height;
+	public double effectiveDragArea;
+	public int FTP;
 	public String riderStyle;
 	public Bike bikeObj;
+
+	public Cyclist() {
+	}
 	
-	public Cyclist () {}
-	
-	public Cyclist (Double riderWeight, int riderFTP, String riderStyle, Bike bikeObj) { 
-		this.riderWeight = riderWeight;
-		this.riderFTP = riderFTP;
+	public Cyclist(double mass, double height, double effectiveDragArea, Bike bikeObj) {
+		this.mass = mass;
+		this.height = height;
+		this.effectiveDragArea = effectiveDragArea;
+		this.bikeObj = bikeObj;
+	}
+
+	public Cyclist(String name, double mass, double height, double effectiveDragArea, int FTP, String riderStyle, Bike bikeObj) {
+		this.name = name;
+		this.mass = mass;
+		this.height = height;
+		this.effectiveDragArea = effectiveDragArea;
+		this.FTP = FTP;
 		this.riderStyle = riderStyle;
 		this.bikeObj = bikeObj;
 	}
@@ -31,20 +45,20 @@ public class Cyclist {
 		this.bikeObj = bikeObj;
 	}
 
-	public Double getRiderWeight() {
-		return riderWeight;
+	public Double getRiderMass() {
+		return mass;
 	}
 
-	public void setRiderWeight(Double riderWeight) {
-		this.riderWeight = riderWeight;
+	public void setRiderMass(Double riderMass) {
+		this.mass = riderMass;
 	}
 
 	public int getRiderFTP() {
-		return this.riderFTP;
+		return this.FTP;
 	}
 
 	public void setRiderFTP(int riderFTP) {
-		this.riderFTP = riderFTP;
+		this.FTP = riderFTP;
 	}
 
 	public String getRiderStyle() {
@@ -55,8 +69,16 @@ public class Cyclist {
 		this.riderStyle = riderStyle;
 	}
 	
-	public double getTotalWeight() {
-		return bikeObj.getBikeWeight() + this.riderWeight;
+	public double getEffectiveDragArea() {
+		return effectiveDragArea;
 	}
-	
+
+	public void setEffectiveDragArea(double effectiveDragArea) {
+		this.effectiveDragArea = effectiveDragArea;
+	}
+
+	public double getTotalMass() {
+		return bikeObj.getBikeMass() + this.mass;
+	}
+
 }
