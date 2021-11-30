@@ -20,7 +20,8 @@ public class Cyclist {
 	public Cyclist() {
 	}
 	
-	public Cyclist(double mass, double height, double effectiveDragArea, Bike bikeObj) {
+	public Cyclist(String name, double mass, double height, double effectiveDragArea, Bike bikeObj) {
+		this.name = name;
 		this.mass = mass;
 		this.height = height;
 		this.effectiveDragArea = effectiveDragArea;
@@ -35,6 +36,14 @@ public class Cyclist {
 		this.FTP = FTP;
 		this.riderStyle = riderStyle;
 		this.bikeObj = bikeObj;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Bike getBikeObj() {
