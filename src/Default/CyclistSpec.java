@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CyclistSpec {
-	
+	/*
 	@Test
 	public void totalMassIs100For90kgCyclistAnd10kgBike(){
 		Bike testBike = new Bike("Giant", "TCR Advanced Pro", 2021, 10, 0.00330, "Carbon", "Road Race");
@@ -19,4 +19,5 @@ public class CyclistSpec {
 		testCyclist.setRiderFTP(300);
 		assertTrue(testCyclist.getRiderFTP() == 300);
 	}
+	*/
 }
