@@ -13,6 +13,7 @@ public class Cyclist {
 	public double mass;
 	public double height;
 	public double effectiveDragArea;
+	public double airDragCoefficent;
 	public int FTP;
 	public String riderStyle;
 	public Bike bikeObj;
@@ -20,24 +21,36 @@ public class Cyclist {
 	public Cyclist() {
 	}
 	
-	public Cyclist(String name, double mass, double height, double effectiveDragArea, Bike bikeObj) {
+	public Cyclist(String name, double mass, double height, double effectiveDragArea, double airDragCoefficent, Bike bikeObj) {
 		this.name = name;
 		this.mass = mass;
 		this.height = height;
 		this.effectiveDragArea = effectiveDragArea;
+		this.airDragCoefficent = airDragCoefficent;
 		this.bikeObj = bikeObj;
 	}
 
-	public Cyclist(String name, double mass, double height, double effectiveDragArea, int FTP, String riderStyle, Bike bikeObj) {
+	public Cyclist(String name, double mass, double height, double effectiveDragArea, double airDragCoefficent, int FTP, String riderStyle, Bike bikeObj) {
 		this.name = name;
 		this.mass = mass;
 		this.height = height;
 		this.effectiveDragArea = effectiveDragArea;
+		this.airDragCoefficent = airDragCoefficent;
 		this.FTP = FTP;
 		this.riderStyle = riderStyle;
 		this.bikeObj = bikeObj;
 	}
 	
+	
+	
+	public double getAirDragCoefficent() {
+		return airDragCoefficent;
+	}
+
+	public void setAirDragCoefficent(double airDragCoefficent) {
+		this.airDragCoefficent = airDragCoefficent;
+	}
+
 	public String getName() {
 		return name;
 	}

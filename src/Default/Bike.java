@@ -13,8 +13,6 @@ public class Bike{
 	private double rollingResistanceCoe;
 	private String frameMaterial; 
 	private String classification;
-	
-	//private string tires??
 
 	public Bike () {}
 	
