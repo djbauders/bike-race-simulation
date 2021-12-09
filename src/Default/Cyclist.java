@@ -15,6 +15,7 @@ public class Cyclist {
 	public double effectiveDragArea;
 	public double airDragCoefficent;
 	public int FTP;
+	public double currentPower;
 	public String riderStyle;
 	public Bike bikeObj;
 
@@ -40,8 +41,6 @@ public class Cyclist {
 		this.riderStyle = riderStyle;
 		this.bikeObj = bikeObj;
 	}
-	
-	
 	
 	public double getAirDragCoefficent() {
 		return airDragCoefficent;
@@ -101,6 +100,54 @@ public class Cyclist {
 
 	public double getTotalMass() {
 		return bikeObj.getBikeMass() + this.mass;
+	}
+	
+	public double getCurrentPower() {
+		return currentPower;
+	}
+
+	public void setCurrentPower(double currentPower) {
+		this.currentPower = currentPower;
+	}
+
+	/**
+	 * Determines random FTP for a cyclist based on their bodyweight. 
+	 * Formula : FTP = Weight in Lbs * 2
+	 * Additionally, this can fluctuate betwen -5 to 10%
+	 */
+	public void determineRandomFTP() {
+		double weightInLbs = this.mass * 2.2;
+		double originalFTP = weightInLbs * 2;
+		int adjustment = (int) (Math.random() * ((originalFTP * 0.1) + (originalFTP * 0.05)) - (originalFTP * 0.05));
+		
+		this.FTP = (int) adjustment;
+	}
+	
+	/**
+	 * Asses what the current power is of a cyclist based on the duration of how they have been racing. 
+	 * @param time - 
+	 */
+	public void adjustCurrentPower(double time, double slope) {
+		double ftpPercentage;
+		
+		//If slope is 10% or greater, racers will coast
+		if(slope >= 10) {
+			this.currentPower = 0;
+			return;
+		}
+			
+		//Sweet Spot : Manageable up to 2hrs
+		if(time <= 120) { //88 to 95% of FTP
+			ftpPercentage = (Math.random() * (0.95 - 0.88) + 0.88);
+		//Tempo : Manageable up to 8hrs
+		}else if(time <= 480) { //75 to 88% of FTP
+			ftpPercentage = (Math.random() * (0.88 - 0.75) + 0.75);
+		//Endurance
+		} else { //55 to 75% of FTP
+			ftpPercentage = (Math.random() * (0.75 - 0.55) + 0.55);
+		}
+		
+		this.currentPower = FTP * ftpPercentage;
 	}
 
 }

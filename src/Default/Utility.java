@@ -7,11 +7,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.function.Function;
 
-@FunctionalInterface
-interface Func {
-	double apply(double w, double cRVN, double cD, double A, double AD, double fRG, double cM, double p);
-	//double apply(double a, double b, double w, double cRVN, double cD, double A, double PAD);
-}
+
 
 /**
  * @author baude2d, dunha2j
