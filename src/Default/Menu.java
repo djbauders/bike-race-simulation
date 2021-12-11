@@ -47,7 +47,10 @@ public class Menu extends JFrame implements ActionListener{
 	static ArrayList<RaceCourse> courseList = new ArrayList<RaceCourse>();
 	static ArrayList<Weather> weatherList = new ArrayList<Weather>();
 	static ArrayList<String> cyclistStyleList = new ArrayList<String>();
+	static ArrayList<Double> velocityList = new ArrayList<Double>();
 	String cName;
+	
+	static int iterations = 0;
 	
 	Color gold = new Color(252, 205, 53);
 	Color maroon = new Color(128, 0, 0);
@@ -594,7 +597,7 @@ public class Menu extends JFrame implements ActionListener{
 				  List<Integer> elevationDistanceList = new ArrayList<Integer>();
 				  
 				  for(int j = 0; j < elevationList.size(); j++) {
-					  for(int i = (int) lengthInKm * 100; i >= 0; i -= 10) {
+					  for(int i = (int) lengthInKm * 1000; i >= 0; i -= 10) {
 					  elevationDistanceList.add(elevationList.get(j));
 				  	}
 				  }
@@ -745,6 +748,12 @@ public class Menu extends JFrame implements ActionListener{
 		jcbBike.addItem(new Bike("Trek", "Madone SLR 9", 2021, 7.5, 0.00330, "Carbon", "Road Race")); 
 		jcbBike.addItem(new Bike("LiteSpeed", "Ultimate Gravel", 2021, 8.93, 0.00460, "Titanium", "Gravel"));
 		jcbBike.setRenderer(new BikeListCellRenderer());
+		jbtRBike.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+			double i = ((Math.random() * (4 - 1)) + 1);
+			jcbBike.setSelectedIndex((int) i - 1);
+			}
+		});
 		//cyclistGrid || Row 5 || Effective Drag Area
 		JLabel jlEDA = new JLabel("Effective Drag Area");
 		jlEDA.setFont(tnr);
@@ -883,7 +892,7 @@ public class Menu extends JFrame implements ActionListener{
 		simulationPage.setBackground(maroon);
 		JPanel viewSimPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		viewSimPanel.setBackground(maroon);
-		JPanel simButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JPanel simButtonPanel = new JPanel(new GridLayout(0,3,30,30));
 		simButtonPanel.setBackground(maroon);
 		
 		TitledBorder simTitle = new TitledBorder("View Simulation");
@@ -892,13 +901,43 @@ public class Menu extends JFrame implements ActionListener{
 		
 		//START OF viewSimPanel
 		//viewSimPanel || JTextArea to display race
-		JTextArea jtaSimulation = new JTextArea();
+		JTextArea jtaSimulation = new JTextArea("Run Simulation on the menu to get started.");
 		
 		jtaSimulation.setBorder(bLineBorder);
 		jtaSimulation.setEditable(false);
 		//END OF viewSimPanel
-		viewSimPanel.add(jtaSimulation);
 		
+		//START OF simButtonPanel
+		//simButtonPanel || Buttons to add functionality to simulation
+		JButton jbtOneSecond = new JButton(">");
+		jbtOneSecond.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				String str = "";
+				double n;
+				for (int i = 0; i < cyclistList.size(); i++) {
+			
+				if(velocityList.size() < cyclistList.size()) {
+					velocityList.add(Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations));
+				} else {
+					n = velocityList.get(i) + Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations);
+					velocityList.set(i, n);
+				}
+				str += "" + velocityList.get(i) + "\n";
+				}
+				jtaSimulation.setText(str);
+				iterations++;
+				}
+		});
+		JButton jbt30Seconds = new JButton(">>");
+		
+		JButton jbtOneMinute = new JButton(">>>");
+		//END OF simButtonPanel
+		
+		
+		viewSimPanel.add(jtaSimulation);
+		simButtonPanel.add(jbtOneSecond);
+		simButtonPanel.add(jbt30Seconds);
+		simButtonPanel.add(jbtOneMinute);
 		simulationPage.add(viewSimPanel);
 		simulationPage.add(simButtonPanel);
 		return simulationPage;
