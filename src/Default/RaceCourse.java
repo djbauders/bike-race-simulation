@@ -3,17 +3,19 @@
  */
 package Default;
 
+import java.awt.event.ActionListener;
 import java.util.*;
 
 /**
- * @author baude2d, dunha2j
+ * @author baude2d
  *
  */
 public class RaceCourse {
 
+	public String name;
 	public double lengthInKM;
 	public double checkPoints;
-	public String terrain;
+//	public String terrain;
 	public String hazard;
 	public double elevation; // height above sea level (meters)
 	public double maxElevation = 100;
@@ -21,23 +23,24 @@ public class RaceCourse {
 //incline = +, decline = -, flat = 0
 	public Weather weatherObj;
 	
-	public RaceCourse() {}
+	public RaceCourse() throws Exception {}
 	
-	public RaceCourse(double lengthInKM, double checkPoints, double elevation, double slope, String terrain, String hazard, Weather weatherObj) throws Exception {
+	public RaceCourse(String name, double lengthInKM, double checkPoints, String hazard, Weather weatherObj) throws Exception {
 		if(lengthInKM <= 0) {
 			throw new Exception("Length is less than or equal to 0");
 		}
 		if(checkPoints <= 0) {
 			throw new Exception("Checkpoints less than or equal to 0");
 		}
-		if(terrain == "" || hazard == "") {
-			throw new Exception("Strings are empty");
-		}
+//		if(terrain == "" || hazard == "") {
+//			throw new Exception("Strings are empty");
+//		}
+		this.name = name;
 		this.lengthInKM = lengthInKM;
 		this.checkPoints = checkPoints;
-		this.elevation = elevation;
-		this.slope = slope;
-		this.terrain = terrain;
+//		this.elevation = elevation;
+//		this.slope = slope;
+//		this.terrain = terrain;
 		this.hazard = hazard;
 		this.weatherObj = weatherObj;
 	}
@@ -96,6 +99,10 @@ public class RaceCourse {
 		return elevationList;
 	}
 	
+	public String getCourseName() {
+		return name;
+	}
+	
 	public double getlengthInKM() {
 		return lengthInKM;
 	}
@@ -135,13 +142,13 @@ public class RaceCourse {
 	public void setSlope(double slope) {
 		this.slope = slope;
 	}
-	public String getTerrain() {
-		return terrain;
-	}
-
-	public void setTerrain(String terrain) {
-		this.terrain = terrain;
-	}
+//	public String getTerrain() {
+//		return terrain;
+//	}
+//
+//	public void setTerrain(String terrain) {
+//		this.terrain = terrain;
+//	}
 
 	public String getHazard() {
 		return hazard;
