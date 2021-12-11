@@ -4,6 +4,8 @@
 package Default;
 
 import java.util.ArrayList;
+import java.util.List;
+//import java.util.Random;
 import java.util.Scanner;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -12,22 +14,39 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
+//import java.awt.Cursor;
+//import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+//import java.awt.BasicStroke;
+//import java.awt.Graphics;
+//import java.awt.Graphics2D;
 import java.awt.GridLayout;
+//import java.awt.Point;
+//import java.awt.RenderingHints;
+//import java.awt.Stroke;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
- * @author baude2d, dunha2j
+ * @author baude2d
  *
  */
 public class Menu extends JFrame implements ActionListener{
 
+	
 	ArrayList<String> raceNameList = new ArrayList<String>();
+	ArrayList<String> courseNameList = new ArrayList<String>();
+	static ArrayList<Bike> bikeList = new ArrayList<Bike>();
+	static ArrayList<Cyclist> cyclistList = new ArrayList<Cyclist>();
+	static ArrayList<RaceCourse> courseList = new ArrayList<RaceCourse>();
+	static ArrayList<Weather> weatherList = new ArrayList<Weather>();
+	static ArrayList<String> cyclistStyleList = new ArrayList<String>();
 	String cName;
 	
 	Color gold = new Color(252, 205, 53);
@@ -51,12 +70,13 @@ public class Menu extends JFrame implements ActionListener{
 	JPanel jpMenuCard = new JPanel(clMenu); // Menu for simulation and setting values/objs
 	JPanel jpBuildCyclist = new JPanel(new BorderLayout()); // Panel for building cyclists
 	JPanel jpBuildCourse = new JPanel(new BorderLayout()); // Panel for building a race course
-	JPanel jpSavedObjs = new JPanel(new BorderLayout()); // Panel to view saved objects
+	JPanel jpViewObjs = new JPanel(new BorderLayout()); // Panel to view saved objects
 
 	// Menu JComponents and Global Variables
 	JButton jbtSaveRace, jbtRunSim, jbtCreateCourse, jbtCreateCyclist, jbtCreateBike, jbtSetWeather;
 	JLabel jlMenuTitle, jlRaceName, jlCourse, jlCyclist, jlBike, jlWeather;
-	JComboBox<String> jcbCourse, jcbCyclist, jcbBike, jcbWeather;
+	JComboBox<String>  jcbCyclist, jcbBike, jcbWeather;
+	JComboBox<RaceCourse> jcbCourse;
 	String[] exampleStringArr = {"1", "2", "3", "test"};
 	JTextField jtfRaceName = new JTextField();
 	
@@ -64,25 +84,25 @@ public class Menu extends JFrame implements ActionListener{
 	JButton jbtSaveCourse, jbtSaveCName, jbtSaveLength, jbtSaveCP, jbtSaveME, jbtGenerateHills;
 	JLabel jlCourseName, jlLength, jlCP, jlMaxElevation, jlHills;
 	JComboBox<String> jcbSaveLength, jcbSaveCP, jcbSaveME;
-	JTextField jtfCourseName, jtfLength, jtfCP, jtfME;
+	JTextField jtfCourseName, jtfLength, jtfCP;
+	static JTextField jtfME;
 	JTextArea jtaHills;
 	
 	// Cyclist JComponents and Global Variables
 	JButton jbtRName, jbtRMass, jbtRHeight, jbtLinkEDA, jbtRFTP, jbtRStyle, jbtRBike;
-	JLabel jlCyclistName, jlCMass, jlCHeight, jlEDA, jlFTP, jlStyle;
+	JLabel jlCyclistName, jlCMass, jlCHeight, jlEDA, jlFTP, jlStyle, jlCBike, jlRiderStyle;
 	JComboBox<String> jcbStyle, jcbFTP, jcbCBike;
 	JTextField jtfCyclistName, jtfCMass, jtfCHeight, jtfEDA; 
 	
-	public Menu() {
-		//Menu is a tabbed pane
-		
+	public Menu() throws Exception {		
 		//Initializing JComponents
 		JComponent menuPage = createMenuPage();
 		JComponent coursePage = createCoursePage();
 		JComponent cyclistPage = createCyclistPage();
-		JComponent bikePage = createBikePage();
-		JComponent weatherPage = createWeatherPage();
-		JComponent savedPage = createSavedPage();
+//		JComponent bikePage = createBikePage();
+//		JComponent weatherPage = createWeatherPage();
+		JComponent viewObjectsPage = createViewObjectsPage();
+		JComponent simulationPage = createSimulationPage();
 		
 		//Adding pages to card layout
 		jpMenuCard.add(menuPage, "Menu");
@@ -96,12 +116,13 @@ public class Menu extends JFrame implements ActionListener{
 		menuTabbedPane.addTab("Menu", menuPage);
 		menuTabbedPane.addTab("Build Course", coursePage);
 		menuTabbedPane.addTab("Build Cyclist", cyclistPage);
-		menuTabbedPane.addTab("Build Bike", bikePage);
-		menuTabbedPane.addTab("Build Weather", weatherPage);
-		menuTabbedPane.addTab("Saved Objects", savedPage);
+//		menuTabbedPane.addTab("Build Bike", bikePage);
+//		menuTabbedPane.addTab("Build Weather", weatherPage);
+		menuTabbedPane.addTab("View Objects", viewObjectsPage);
+		menuTabbedPane.addTab("View Simulation", simulationPage);
 		jpMenuCard.add(menuTabbedPane);
 		
-		add(jpMenuCard);
+		add(menuTabbedPane);
 		
 		setTitle("Bike Race Simulation - CPS270");
 		pack();
@@ -110,6 +131,85 @@ public class Menu extends JFrame implements ActionListener{
 		setSize(1000,750);
 		setVisible(true);
 	}
+	
+	public static void loadDefaultObjects() throws Exception {
+		// Bike: /make/model/year/bikeMass(kg)/rollingResistanceCoe/frameMaterial/classification
+		bikeList.add(new Bike("Giant", "TCR Advanced Pro", 2021, 7.6, 0.00330, "Carbon", "Road Race"));
+		bikeList.add(new Bike("Canyon", "SpeedMax CF 8", 2021, 8.39, 0.00330, "Carbon", "Time Trail"));
+		bikeList.add(new Bike("Trek", "Madone SLR 9", 2021, 7.5, 0.00330, "Carbon", "Road Race")); 
+		bikeList.add(new Bike("LiteSpeed", "Ultimate Gravel", 2021, 8.93, 0.00460, "Titanium", "Gravel"));
+		
+		// Cylist: /name/mass(kg)/height(cm)/effectiveDragArea(m2)/FTP(W)/riderStyle/bikeObj
+//		cyclistList.add(new Cyclist("Eddy Merckx", 72, 170, 0.4889, 0.96759,430,"Sprinter",bikeList.get(4)));
+		//DOMESTIC PRO
+		
+		//CAT 1
+		cyclistList.add(new Cyclist("Brandon", 70.76, 158, 0.5758, 0.96759, 345, "Climber", bikeList.get(3)));//4.89w/kg
+		cyclistList.add(new Cyclist("Alec", 59.87, 150, 0.4397, 0.96759, 303, "Climber", bikeList.get(2))); //5.07 w/kg
+		//CAT 2
+		cyclistList.add(new Cyclist("Mason", 83.91, 179, 0.5270, 0.96759, 365, "Sprinter", bikeList.get(0))); //4.35 w/kg
+		//CAT 3
+		cyclistList.add(new Cyclist("Josh", 106, 155, 0.5478, 0.96759, 414, "Sprinter", bikeList.get(2))); //Cat 3 Racer, 3.91 w/kg, W: 414
+		cyclistList.add(new Cyclist("Jon", 90, 190, 0.5529, 0.96775, 400, "Sprinter", bikeList.get(0))); //W:400
+
+		////CYCLIST STYLES////////////////////////////////////////////////////////////////////////////////////////////////////////
+		cyclistStyleList.add("Climber"); // Bonus on Velocity when Climbing, Slower on Flat Grades and Descents up to -5%
+		cyclistStyleList.add("Sprinter"); // Bonus on Velocity for Flat Grades and Descents up to -5%, Slower on climbs
+		cyclistStyleList.add("All-Arounder"); // Neither Bonus nor Disadvantages
+		cyclistStyleList.add("Time Trialist"); // Slight Bonus when riding alone 
+		cyclistStyleList.add("Descender"); //Can still output wattage at up to 15% grade
+		
+		weatherList.add(new Weather("None", 0, 65, "Clear"));
+
+		courseList.add(new RaceCourse("Course 1", 100, 32, "None", weatherList.get(0)));
+	}
+	
+	public class CyclistListCellRenderer extends DefaultListCellRenderer {
+
+	    public Component getListCellRendererComponent(
+	                                   JList<?> list,
+	                                   Object value,
+	                                   int index,
+	                                   boolean isSelected,
+	                                   boolean cellHasFocus) {
+	        if (value instanceof Cyclist) {
+	            value = ((Cyclist)value).getName();
+	        }
+	        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+	        return this;
+	    }
+	}
+	
+	public class BikeListCellRenderer extends DefaultListCellRenderer {
+	    public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus) {
+	    	if (value instanceof Bike) {
+	    		value = ((Bike)value).getMake();
+	    	}
+	    	super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+	    	return this;
+}
+}
+	
+	public class CourseListCellRenderer extends DefaultListCellRenderer {
+	    public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus) {
+	    	if (value instanceof RaceCourse) {
+	    		value = ((RaceCourse)value).getCourseName();
+	    	}
+	    	super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+	    	return this;
+}
+}
+	
 	
 	public JPanel createButtonPanel(JButton jbtButton, String text) {
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -141,8 +241,36 @@ public class Menu extends JFrame implements ActionListener{
 		return buttonPanel;
 	}
 	
-	public JComponent createMenuPage() {
-		
+	public String generateRandomCyclistName() throws FileNotFoundException {
+		File rNames = new File("rNames.txt");
+		Scanner sr = new Scanner(rNames);
+		ArrayList<String> namesList = new ArrayList<String>();
+		while (sr.hasNextLine()) {
+			String line = sr.nextLine();
+			namesList.add(line);
+		}
+		double randomNum = ((Math.random() * (98 - 1)) + 1);
+		sr.close();
+		return namesList.get((int) randomNum);
+	}
+	
+	public String generateRandomCyclistMass() {
+		String str = "";
+		//Average mass in kg for the USA = 80 == 177 lbs
+		//random mass returns +- 20 kg from average
+		double randomMass = ((int) (Math.random() * (100 - 60) + 60));
+		return str + randomMass;
+	}
+	
+	public String generateRandomCyclistHeight() {
+		String str = "";
+		//Average height in cm for the USA is approximately 169cm
+		//randomHeight returns +- 30 cm from the average
+		double randomHeight = ((int) (Math.random() * (199 - 139) + 139));
+		return str + randomHeight;
+	}
+	
+	public JComponent createMenuPage() throws Exception {
 		JPanel menuPage = new JPanel();
 		menuPage.setLayout(new GridLayout(0,1,30,30));
 		JPanel  menuGrid = new JPanel(new GridLayout(0,3,30,30));
@@ -186,7 +314,9 @@ public class Menu extends JFrame implements ActionListener{
 			}
 		});
 		
-		JComboBox<String> jcbCourse = new JComboBox<String>(exampleStringArr);
+		JComboBox<RaceCourse> jcbCourse = new JComboBox<RaceCourse>();
+		jcbCourse.addItem(new RaceCourse("Course 1", 100, 32, "None", weatherList.get(0)));
+		jcbCourse.setRenderer(new CourseListCellRenderer());
 		jcbCourse.setBorder(bLineBorder);
 		//menuGrid || Row 3 || Your Cyclist
 		JLabel jlCyclist = new JLabel("Your Cyclist");
@@ -201,43 +331,55 @@ public class Menu extends JFrame implements ActionListener{
 			}
 		});
 		
-		JComboBox<String> jcbCyclist = new JComboBox<String>(exampleStringArr);
+		JComboBox<Cyclist> jcbCyclist = new JComboBox<Cyclist>();
+		jcbCyclist.addItem(new Cyclist("Brandon", 70.76, 158, 0.5758, 0.96759, 345, "Climber", bikeList.get(3)));//4.89w/kg
+		jcbCyclist.addItem(new Cyclist("Alec", 59.87, 150, 0.4397, 0.96759, 303, "Climber", bikeList.get(2))); //5.07 w/kg
+		//CAT 2
+		jcbCyclist.addItem(new Cyclist("Mason", 83.91, 179, 0.5270, 0.96759, 365, "Sprinter", bikeList.get(0))); //4.35 w/kg
+		//CAT 3
+		jcbCyclist.addItem(new Cyclist("Josh", 106, 155, 0.5478, 0.96759, 414, "Sprinter", bikeList.get(2))); //Cat 3 Racer, 3.91 w/kg, W: 414
+		jcbCyclist.addItem(new Cyclist("Jon", 90, 190, 0.5529, 0.96775, 400, "Sprinter", bikeList.get(0))); //W:400
 		jcbCyclist.setBorder(bLineBorder);
+		jcbCyclist.setRenderer(new CyclistListCellRenderer());
 		//menuGrid || Row 4 || Your Bike
-		JLabel jlBike = new JLabel("Your Bike");
-		jlBike.setFont(tnr);
-		jlBike.setForeground(gold);
-		jlBike.setBackground(maroon);
-		
-		JButton jbtCreateBike = new JButton("+");
-		jbtCreateBike.addActionListener(new ActionListener() { 
-			public void actionPerformed(ActionEvent e) {
-				menuTabbedPane.setSelectedIndex(3);
-			}
-		});
-		
-		JComboBox<String> jcbBike = new JComboBox<String>(exampleStringArr);
-		jcbBike.setBorder(bLineBorder);
-		//menuGrid || Row 5 || Weather
-		JLabel jlWeather = new JLabel("Weather Conditions");
-		jlWeather.setFont(tnr);
-		jlWeather.setForeground(gold);
-		jlWeather.setBackground(maroon);
-		JButton jbtCreateWeather = new JButton("+");
-		jbtCreateWeather.addActionListener(new ActionListener() { 
-			public void actionPerformed(ActionEvent e) {
-				menuTabbedPane.setSelectedIndex(4);
-			}
-		});
-		
-		JComboBox<String> jcbWeather = new JComboBox<String>(exampleStringArr);
-		jcbWeather.setBorder(bLineBorder);
+//		JLabel jlBike = new JLabel("Your Bike");
+//		jlBike.setFont(tnr);
+//		jlBike.setForeground(gold);
+//		jlBike.setBackground(maroon);
+//		
+//		JButton jbtCreateBike = new JButton("+");
+//		jbtCreateBike.addActionListener(new ActionListener() { 
+//			public void actionPerformed(ActionEvent e) {
+//				menuTabbedPane.setSelectedIndex(3);
+//			}
+//		});
+//		
+//		JComboBox<String> jcbBike = new JComboBox<String>(exampleStringArr);
+//		jcbBike.setBorder(bLineBorder);
+//		//menuGrid || Row 5 || Weather
+//		JLabel jlWeather = new JLabel("Weather Conditions");
+//		jlWeather.setFont(tnr);
+//		jlWeather.setForeground(gold);
+//		jlWeather.setBackground(maroon);
+//		
+//		JButton jbtCreateWeather = new JButton("+");
+//		jbtCreateWeather.addActionListener(new ActionListener() { 
+//			public void actionPerformed(ActionEvent e) {
+//				menuTabbedPane.setSelectedIndex(4);
+//			}
+//		});
+//		
+//		JComboBox<String> jcbWeather = new JComboBox<String>(exampleStringArr);
+//		jcbWeather.setBorder(bLineBorder);
 		//END OF menuGrid
 		
 		//START OF menuBPanel
 		
 		//menuBPanel || Row 1 || Save Race
 		JButton jbtSaveRace = new JButton("Save Race");
+		//!!!!
+		//Be sure to append List of race names with contents of jtfRaceName
+		//!!!!
 		//menuBPanel || Row 2 || Run Simulation
 		JButton jbtRunSim = new JButton("Run Simulation");
 		//END OF menuBPanel
@@ -256,14 +398,15 @@ public class Menu extends JFrame implements ActionListener{
 		menuGrid.add(jlCyclist);
 		menuGrid.add(createButtonPanel(jbtCreateCyclist, "Create Cyclist > "));
 		menuGrid.add(jcbCyclist);
-		//R4
-		menuGrid.add(jlBike);
-		menuGrid.add(createButtonPanel(jbtCreateBike, "Create Bike > "));
-		menuGrid.add(jcbBike);
-		//R5
-		menuGrid.add(jlWeather);
-		menuGrid.add(createButtonPanel(jbtCreateWeather, "Create Weather > "));
-		menuGrid.add(jcbWeather);
+//		//R4
+		
+//		menuGrid.add(jlBike);
+//		menuGrid.add(createButtonPanel(jbtCreateBike, "Create Bike > "));
+//		menuGrid.add(jcbBike);
+//		//R5
+//		menuGrid.add(jlWeather);
+//		menuGrid.add(createButtonPanel(jbtCreateWeather, "Create Weather > "));
+//		menuGrid.add(jcbWeather);
 		
 		menuPage.add(menuGrid);
 		
@@ -292,6 +435,7 @@ public class Menu extends JFrame implements ActionListener{
 		courseTitle.setTitleColor(gold);
 		coursePage.setBorder(courseTitle);
 		
+		
 		//START OF courseGrid
 		//courseGrid || Row 1 || Course Name
 		JLabel jlCourseName = new JLabel("Course Name");
@@ -313,9 +457,8 @@ public class Menu extends JFrame implements ActionListener{
 		});
 		jbtRCName.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				//Read in random name from file of popular baby names (Not including any default racer names)
-				
-				
+				int nPlusOne = courseNameList.size() + 1;
+				jtfCourseName.setText("Race " + nPlusOne);
 				
 			}
 		});
@@ -327,15 +470,14 @@ public class Menu extends JFrame implements ActionListener{
 		jlLength.setForeground(gold);
 		jlLength.setBackground(maroon);
 		
-		JButton jbtSaveLength = new JButton("+");
+		JButton jbtDefaultLength = new JButton("+");
 		
 		JTextField jtfLength = new JTextField();
 		jtfLength.setBorder(bLineBorder);
 		
-		jbtSaveLength.addActionListener(new ActionListener() { 
+		jbtDefaultLength.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				String cLength = jtfLength.getText();
-				System.out.print(cLength);
+				jtfLength.setText("" + 120);
 			}
 		});
 		//courseGrid || Row 3 || Number of Checkpoints
@@ -344,15 +486,14 @@ public class Menu extends JFrame implements ActionListener{
 		jlCP.setForeground(gold);
 		jlCP.setBackground(maroon);
 		
-		JButton jbtSaveCP = new JButton("+");
+		JButton jbtDefaultCP = new JButton("+");
 		
 		JTextField jtfCP = new JTextField();
 		jtfCP.setBorder(bLineBorder);
 		
-		jbtSaveCP.addActionListener(new ActionListener() { 
+		jbtDefaultCP.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				String strCP = jtfCP.getText();
-				System.out.print(strCP);
+				jtfCP.setText("" + 32);
 			}
 		});
 		//courseGrid || Row 4 || Max Elevation
@@ -361,15 +502,14 @@ public class Menu extends JFrame implements ActionListener{
 		jlME.setForeground(gold);
 		jlME.setBackground(maroon);
 		
-		JButton jbtSaveME = new JButton("+");
+		JButton jbtDefaultME = new JButton("+");
 		
 		JTextField jtfME = new JTextField();
 		jtfME.setBorder(bLineBorder);
 		
-		jbtSaveME.addActionListener(new ActionListener() { 
+		jbtDefaultME.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				String strME = jtfME.getText();
-				System.out.print(strME);
+				jtfME.setText("" + 100);
 			}
 		});
 		//courseGrid || Row 5 || Generate Hills
@@ -383,6 +523,86 @@ public class Menu extends JFrame implements ActionListener{
 		JTextField jtfNumHills = new JTextField();
 		jtfNumHills.setEditable(false);
 		jtfNumHills.setBackground(new Color(211,211,211));
+		
+		jbtGenerateHills.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				for(int x = 0; x < 1; x++) {
+//					generateHills();
+				 //Creating hills and elevations
+				  ArrayList<Integer> cPList = new ArrayList<Integer>();
+				  ArrayList<Integer> peakList = new ArrayList<Integer>();
+				  ArrayList<Integer> elevationList = new ArrayList<Integer>();
+//				  Random r = new Random();
+				  String jtfLengthStr = jtfLength.getText();
+				  String jtfCPStr = jtfCP.getText();
+				  String jtfMEStr = jtfME.getText();
+				  if (jtfLength.getText() == null) {
+					  jtfLength.setText("Length is null");
+					  break;
+				  }
+				  if (jtfCP.getText() == null) {
+					  jtfCP.setText("Check points is null");
+				  }
+				  if (jtfME.getText() == null) {
+					  jtfME.setText("Max elevation is null");
+				  }
+				  
+					int lengthInKm = Integer.parseInt(jtfLengthStr);
+					int numCP = Integer.parseInt(jtfCPStr);
+					int maxElevation = Integer.parseInt(jtfMEStr);
+				  int numHills = (int) ((Math.random() * ((numCP / 3) - 1)) + 1);
+				  int ascend, descend;
+
+				  //Fill checkpoints with indexes given numCP
+				  for(int i = 0; i < numCP; i++) {
+					  cPList.add( i);
+				  }
+				  
+				  //Generate peak elevations for each hill
+				  for(int i = 0; i < numHills; i++) {
+					  peakList.add((int) ((Math.random() * ((maxElevation - 1)) + 1)));
+					  System.out.println("Hill num: " + (i + 1)  + "\nPeak elevation: " + peakList.get(i));
+				  }
+				  
+				  for(int i = 0; i < peakList.size(); i++) {
+					  ascend = 0;
+					  descend = 0;
+					  for(int j = ascend; j < peakList.get(i); j++) {
+						if(ascend >= peakList.get(i)) {
+							
+						} else {
+						ascend += (int) ((Math.random() * ((10 - 1)) + 1));
+						System.out.println("Rand ase: " + ascend + "Hill: " + i);
+					  	elevationList.add(ascend);
+						}
+					  }
+					  descend = ascend;
+					  for(int k = descend; k > 0; k--) {
+//						  if(descend < 0) {
+//							  descend = 0;
+//						  }
+						  if(descend <= 0) {
+						  
+						  } else {
+							  descend -= (int) ((Math.random() * ((10 - 1)) + 1));
+							  System.out.println("Random des: " + descend + "Hill: " + i);
+							  elevationList.add(descend);
+						  }
+					  } 
+				  }
+				  
+				  List<Integer> elevationDistanceList = new ArrayList<Integer>();
+				  
+				  for(int j = 0; j < elevationList.size(); j++) {
+					  for(int i = (int) lengthInKm * 100; i >= 0; i -= 10) {
+					  elevationDistanceList.add(elevationList.get(j));
+				  	}
+				  }
+				  jtfNumHills.setText("" + numHills);
+			}
+				
+			}
+		});
 		//course Grid || Row 6 || Save Course button
 		JTextField space1 = new JTextField();
 		space1.setEditable(false);
@@ -396,28 +616,36 @@ public class Menu extends JFrame implements ActionListener{
 		space2.setBackground(maroon);
 		space2.setForeground(maroon);
 		JButton jbtSaveCourse = new JButton("Save Your Course");
+		jbtSaveCourse.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
+				//!!!!
+				//Be sure to append List of course names with contents of jtfRaceName
+				//!!!!
 
 		//END OF courseGrid
 		
 		//START OF graphPanel
-		//Figure out how to implement graph or scrap it before deadline
-		//END OF graphPanel
+		//Creating Hills and Elevations
+
 		
 		//R1
 		courseGrid.add(jlCourseName);
-		courseGrid.add(create2ButtonPanel(jbtRCName, jbtSaveCName, "Random Name > ", "Save Name > "));
+		courseGrid.add(createButtonPanel(jbtRCName, "Generate Name > "));
 		courseGrid.add(jtfCourseName);
 		//R2
 		courseGrid.add(jlLength);
-		courseGrid.add(createButtonPanel(jbtSaveLength, "Save Length > "));
+		courseGrid.add(createButtonPanel(jbtDefaultLength, "Default Length > "));
 		courseGrid.add(jtfLength);
 		//R3
 		courseGrid.add(jlCP);
-		courseGrid.add(createButtonPanel(jbtSaveCP, "Save Checkpoints > "));
+		courseGrid.add(createButtonPanel(jbtDefaultCP, "Calulate Checkpoints > "));
 		courseGrid.add(jtfCP);
 		//R4
 		courseGrid.add(jlME);
-		courseGrid.add(createButtonPanel(jbtSaveME, "Save Max Elev. > "));
+		courseGrid.add(createButtonPanel(jbtDefaultME, "Default Max Elev. > "));
 		courseGrid.add(jtfME);
 		//R5
 		courseGrid.add(jlHills);
@@ -460,6 +688,17 @@ public class Menu extends JFrame implements ActionListener{
 		
 		JTextField jtfCyclistName = new JTextField();
 		jtfCyclistName.setBorder(gLineBorder);
+		
+		jbtRName.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				try {
+					jtfCyclistName.setText(generateRandomCyclistName());
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
 		//cyclistGrid || Row 2 || Cyclist Mass (kg)
 		JLabel jlCMass = new JLabel("Cyclist Mass");
 		jlCMass.setFont(tnr);
@@ -470,6 +709,12 @@ public class Menu extends JFrame implements ActionListener{
 		
 		JTextField jtfCMass = new JTextField();
 		jtfCMass.setBorder(bLineBorder);
+		
+		jbtCMass.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				jtfCMass.setText(generateRandomCyclistMass());
+			}
+		});
 		//cyclistGrid || Row 3 || Cyclist Height ()
 		JLabel jlCHeight = new JLabel("Cyclist Height");
 		jlCHeight.setFont(tnr);
@@ -480,8 +725,28 @@ public class Menu extends JFrame implements ActionListener{
 		
 		JTextField jtfCHeight = new JTextField();
 		jtfCHeight.setBorder(bLineBorder);
-		//cyclistGrid || Row 4 || Effective Drag Area
-		JLabel jlEDA = new JLabel("Cyclist's Name");
+		
+		jbtRHeight.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				jtfCHeight.setText(generateRandomCyclistHeight());
+			}
+		});
+		//cyclistGrid || Row 4 || Bike object
+		JLabel jlCBike = new JLabel("Bike Object");
+		jlCBike.setFont(tnr);
+		jlCBike.setForeground(gold);
+		jlCBike.setBackground(maroon);
+		
+		JButton jbtRBike = new JButton("R");
+		
+		JComboBox<Bike> jcbBike = new JComboBox<Bike>();
+		jcbBike.addItem(new Bike("Giant", "TCR Advanced Pro", 2021, 7.6, 0.00330, "Carbon", "Road Race"));
+		jcbBike.addItem(new Bike("Canyon", "SpeedMax CF 8", 2021, 8.39, 0.00330, "Carbon", "Time Trail"));
+		jcbBike.addItem(new Bike("Trek", "Madone SLR 9", 2021, 7.5, 0.00330, "Carbon", "Road Race")); 
+		jcbBike.addItem(new Bike("LiteSpeed", "Ultimate Gravel", 2021, 8.93, 0.00460, "Titanium", "Gravel"));
+		jcbBike.setRenderer(new BikeListCellRenderer());
+		//cyclistGrid || Row 5 || Effective Drag Area
+		JLabel jlEDA = new JLabel("Effective Drag Area");
 		jlEDA.setFont(tnr);
 		jlEDA.setForeground(gold);
 		jlEDA.setBackground(maroon);
@@ -490,7 +755,18 @@ public class Menu extends JFrame implements ActionListener{
 		
 		JTextField jtfEDA = new JTextField();
 		jtfEDA.setBorder(bLineBorder);
-		//cyclistGrid || Row 5 || FTP - Wattage
+		
+		jbtEDA.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				Desktop d = Desktop.getDesktop();
+				try {
+					d.browse(new URI("http://www.kreuzotter.de/english/espeed.htm"));
+				} catch (IOException | URISyntaxException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		//cyclistGrid || Row 6 || FTP - Wattage
 		JLabel jlFTP = new JLabel("Cyclist FTP");
 		jlFTP.setFont(tnr);
 		jlFTP.setForeground(gold);
@@ -500,9 +776,43 @@ public class Menu extends JFrame implements ActionListener{
 		
 		JTextField jtfFTP = new JTextField();
 		jtfFTP.setBorder(bLineBorder);
-		//cyclistGrid || Row 6 || Bike Object
 		
-		//END OF cyclistPage
+		jbtFTP.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				String cMass = jtfCMass.getText();
+				double weightInLbs = 2.2 * Double.parseDouble(cMass); //Weight in kg to weight in lbs
+				double originalFTP = weightInLbs * 2;
+				double adjustment = (Math.random() * (((originalFTP) + originalFTP * 0.1) - ((originalFTP) - originalFTP * 0.05)) + ((originalFTP) - originalFTP * 0.05));
+				
+				jtfFTP.setText("" + (int) adjustment);
+			}
+		});
+		//cyclistGrid || Row 7 || Rider Style
+		JLabel jlRiderStyle = new JLabel("Rider style");
+		jlRiderStyle.setFont(tnr);
+		jlRiderStyle.setForeground(gold);
+		jlRiderStyle.setBackground(maroon);
+		
+		JButton jbtRStyle = new JButton("R");
+		
+		JComboBox<String> jcbRStyle = new JComboBox<String>(exampleStringArr);
+		//END OF cyclistGrid
+		
+		//START OF cyclistBGrid
+		JTextField space3 = new JTextField();
+		space3.setEditable(false);
+		space3.setBorder(null);
+		space3.setBackground(maroon);
+		space3.setForeground(maroon);
+		
+		JTextField space4 = new JTextField();
+		space4.setEditable(false);
+		space4.setBorder(null);
+		space4.setBackground(maroon);
+		space4.setForeground(maroon);
+		JButton jbtSaveCyclist = new JButton("Save Your Cyclist");
+		//Be sure to append menu cyclist list
+		//END OF cyclistBGrid
 		
 		//R1
 		cyclistGrid.add(jlCyclistName);
@@ -517,42 +827,87 @@ public class Menu extends JFrame implements ActionListener{
 		cyclistGrid.add(createButtonPanel(jbtRHeight,"Random Height > "));
 		cyclistGrid.add(jtfCHeight);
 		//R4
+		cyclistGrid.add(jlCBike);
+		cyclistGrid.add(createButtonPanel(jbtRBike,"Random Bike > "));
+		cyclistGrid.add(jcbBike);
+		//R5
 		cyclistGrid.add(jlEDA);
 		cyclistGrid.add(createButtonPanel(jbtEDA, "Link to calculator > "));
 		cyclistGrid.add(jtfEDA);
 		//R5
 		cyclistGrid.add(jlFTP);
-		cyclistGrid.add(createButtonPanel(jbtFTP, "Random FTP > "));
+		cyclistGrid.add(createButtonPanel(jbtFTP, "Calculate Random FTP > "));
 		cyclistGrid.add(jtfFTP);
 		//R6
+		cyclistGrid.add(jlRiderStyle);
+		cyclistGrid.add(createButtonPanel(jbtRStyle, "Random Style > "));
+		cyclistGrid.add(jcbRStyle);
 		
+		//R1
+		cyclistBPanel.add(space3);
+		cyclistBPanel.add(space4);
+		cyclistBPanel.add(jbtSaveCyclist);
 		
 		cyclistPage.add(cyclistGrid);
 		cyclistPage.add(cyclistBPanel);
 		return cyclistPage;
 	}
 	
-	public JComponent createBikePage() {
-		JPanel bikePage = new JPanel();
+	public JComponent createViewObjectsPage() {
+		JPanel viewObjectsPage = new JPanel();
+		viewObjectsPage.setLayout(new GridLayout(0,1,30,30));
+		viewObjectsPage.setBackground(maroon);
+		JPanel  objGrid = new JPanel(new GridLayout(0,3,20,20));
+		objGrid.setBackground(maroon);
+		JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		summaryPanel.setBackground(maroon);
 		
-		return bikePage;
+		TitledBorder objTitle = new TitledBorder("View Default Objects");
+		objTitle.setTitleColor(gold);
+		viewObjectsPage.setBorder(objTitle);
+		
+		//START OF objGrid
+		//objGrid || Row 1 || 
+		
+		//objGrid || Row 2 ||
+		
+		//END OF objGrid
+		viewObjectsPage.add(objGrid);
+		viewObjectsPage.add(summaryPanel);
+		return viewObjectsPage;
 	}
 	
-	public JComponent createWeatherPage() {
-		JPanel weatherPage = new JPanel();
+	public JComponent createSimulationPage() {
+		JPanel simulationPage = new JPanel();
+		simulationPage.setLayout(new GridLayout(0,1,30,30));
+		simulationPage.setBackground(maroon);
+		JPanel viewSimPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		viewSimPanel.setBackground(maroon);
+		JPanel simButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		simButtonPanel.setBackground(maroon);
 		
-		return weatherPage;
-	}
-	
-	public JComponent createSavedPage() {
-		JPanel savedPage = new JPanel();
+		TitledBorder simTitle = new TitledBorder("View Simulation");
+		simTitle.setTitleColor(gold);
+		simulationPage.setBorder(simTitle);
 		
-		return savedPage;
+		//START OF viewSimPanel
+		//viewSimPanel || JTextArea to display race
+		JTextArea jtaSimulation = new JTextArea();
+		
+		jtaSimulation.setBorder(bLineBorder);
+		jtaSimulation.setEditable(false);
+		//END OF viewSimPanel
+		viewSimPanel.add(jtaSimulation);
+		
+		simulationPage.add(viewSimPanel);
+		simulationPage.add(simButtonPanel);
+		return simulationPage;
 	}
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		loadDefaultObjects();
 		JFrame frame = new Menu();
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
