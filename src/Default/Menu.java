@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.awt.Desktop;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 
 /**
  * @author baude2d
@@ -51,6 +52,8 @@ public class Menu extends JFrame implements ActionListener{
 	String cName;
 	
 	static int iterations = 0;
+	
+	DecimalFormat df = new DecimalFormat("#,###.###");
 	
 	Color gold = new Color(252, 205, 53);
 	Color maroon = new Color(128, 0, 0);
@@ -271,6 +274,65 @@ public class Menu extends JFrame implements ActionListener{
 		//randomHeight returns +- 30 cm from the average
 		double randomHeight = ((int) (Math.random() * (199 - 139) + 139));
 		return str + randomHeight;
+	}
+
+	
+	public String buildClock(int numIterations) {
+		String clock = "";
+//		for(int i = 0; i <= numSeco)
+		int p1 = numIterations % 60;
+		int p2 = numIterations / 60;
+		int p3 = p2 % 60;
+		p2 = p2 / 60;
+		clock = p2 + ":" + p3 + ":" + p1 + "\n\n";
+		return clock;
+	}
+
+	public String build1SecString(int numIterations) {
+		String results = "";
+		double distance = 0;
+		for(int j = 1; j > 0; j--) {
+		for(int i = 0; i < cyclistList.size(); i++) {
+			String strName = "";
+			strName = cyclistList.get(i).getName();
+			if(velocityList.size() < cyclistList.size()) {
+				velocityList.add(Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations));
+			} else {
+				distance = velocityList.get(i) + Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations);
+				velocityList.set(i, distance);
+				distance = distance / 1000;
+
+				
+			}
+			results += strName + "\t Current Distance (KM): " + df.format(distance) + "\n";
+		}
+		}
+		return results;
+	}
+	
+	public String buildString(int numIterations) {
+		String results = "";
+		double distance = 0;
+		for(int j = numIterations; j > 0; j--) {
+		for(int i = 0; i < cyclistList.size(); i++) {
+			String strName = "";
+			strName = cyclistList.get(i).getName();
+			if(velocityList.size() < cyclistList.size()) {
+				velocityList.add(Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations));
+			} else {
+				distance = velocityList.get(i) + Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations);
+				velocityList.set(i, distance);
+				distance = distance / 1000;
+			}
+			if(j != 1) {
+				results = "";
+			} else {
+			results += strName + "\t Current Distance: " + df.format(distance) + "\n";
+			}
+		}
+		}
+		
+		return results;
 	}
 	
 	public JComponent createMenuPage() throws Exception {
@@ -912,32 +974,40 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbtOneSecond = new JButton(">");
 		jbtOneSecond.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				String str = "";
-				double n;
-				for (int i = 0; i < cyclistList.size(); i++) {
-			
-				if(velocityList.size() < cyclistList.size()) {
-					velocityList.add(Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations));
-				} else {
-					n = velocityList.get(i) + Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations);
-					velocityList.set(i, n);
-				}
-				str += "" + velocityList.get(i) + "\n";
-				}
-				jtaSimulation.setText(str);
-				iterations++;
+				String str = build1SecString(iterations);
+				String clock = buildClock(iterations);
+				iterations += 1;
+				jtaSimulation.setText(clock + str);
 				}
 		});
 		JButton jbt30Seconds = new JButton(">>");
-		
+		jbt30Seconds.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				iterations += 30;
+				String str = buildString(30);
+				String clock = buildClock(iterations);
+
+				jtaSimulation.setText(clock + str);
+			}
+		});
 		JButton jbtOneMinute = new JButton(">>>");
+		jbtOneMinute.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				iterations += 60;
+				String str = buildString(60);
+				String clock = buildClock(iterations);
+
+				jtaSimulation.setText(clock + str);
+			}
+		});
+		
 		//END OF simButtonPanel
 		
 		
 		viewSimPanel.add(jtaSimulation);
-		simButtonPanel.add(jbtOneSecond);
-		simButtonPanel.add(jbt30Seconds);
-		simButtonPanel.add(jbtOneMinute);
+		simButtonPanel.add(createButtonPanel(jbtOneSecond,"One second > "));
+		simButtonPanel.add(createButtonPanel(jbt30Seconds, "30 Seconds > "));
+		simButtonPanel.add(createButtonPanel(jbtOneMinute, "One Minute > "));
 		simulationPage.add(viewSimPanel);
 		simulationPage.add(simButtonPanel);
 		return simulationPage;
