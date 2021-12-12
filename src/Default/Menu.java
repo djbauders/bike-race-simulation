@@ -4,7 +4,9 @@
 package Default;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 //import java.util.Random;
 import java.util.Scanner;
 import javax.swing.*;
@@ -49,6 +51,7 @@ public class Menu extends JFrame implements ActionListener{
 	static ArrayList<Weather> weatherList = new ArrayList<Weather>();
 	static ArrayList<String> cyclistStyleList = new ArrayList<String>();
 	static ArrayList<Double> velocityList = new ArrayList<Double>();
+	static Map<String, Double> hazardMap = new LinkedHashMap<String, Double>();
 	String cName;
 	
 	static double currLength = 120;
@@ -171,7 +174,7 @@ public class Menu extends JFrame implements ActionListener{
 		
 		weatherList.add(new Weather("None", 0, 65, "Clear"));
 
-		courseList.add(new RaceCourse("Course 1", 100, 32, "None", weatherList.get(0)));
+		courseList.add(new RaceCourse("Course 1", 100, 0, 32, hazardMap, weatherList.get(0)));
 	}
 	
 	public class CyclistListCellRenderer extends DefaultListCellRenderer {
@@ -367,7 +370,7 @@ public class Menu extends JFrame implements ActionListener{
 		});
 		
 		JComboBox<RaceCourse> jcbCourse = new JComboBox<RaceCourse>();
-		jcbCourse.addItem(new RaceCourse("Course 1", 100, 32, "None", weatherList.get(0)));
+		jcbCourse.addItem(new RaceCourse("Course 1", 100, 0,32, hazardMap, weatherList.get(0)));
 		jcbCourse.setRenderer(new CourseListCellRenderer());
 		jcbCourse.setBorder(bLineBorder);
 		//menuGrid || Row 3 || Your Cyclist
@@ -963,7 +966,11 @@ public class Menu extends JFrame implements ActionListener{
 		JButton displayHazards = new JButton("D");
 		
 		//Add hazard List and create combo box with hazardList.get(i)
-//		JComboBox<>
+		JComboBox<Map<String, Double>> jcbVOHazards = new JComboBox<Map<String, Double>>();
+		for(int i = 0; i < hazardMap.size(); i++) {
+			jcbVOHazards.addItem(hazardMap);
+		}
+		
 		//objGrid || Row 5 || 
 //		JLabel voRStyle = new JLabel("Default Rider Styles");
 //		
