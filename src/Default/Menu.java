@@ -62,6 +62,7 @@ public class Menu extends JFrame implements ActionListener{
 	RaceCourse currentRace = new RaceCourse();
 	
 	String cName;
+	String rName = "";
 	
 	static double currLength = 120;
 	static double currCP = 32;
@@ -337,7 +338,7 @@ public class Menu extends JFrame implements ActionListener{
 		int p2 = numIterations / 60;
 		int p3 = p2 % 60;
 		p2 = p2 / 60;
-		clock = " " + p2 + ":" + p3 + ":" + p1 + "\n\n";
+		clock = " " + p2 + ":" + p3 + ":" + p1 + "\t\t" + rName + "\n\n";
 		return clock;
 	}
 
@@ -503,10 +504,12 @@ public class Menu extends JFrame implements ActionListener{
 			}
 		});
 		
-		JButton jbtSaveRace = new JButton("Save Race");
-		//!!!!
-		//Be sure to append List of race names with contents of jtfRaceName
-		//!!!!
+		JButton jbtSaveRaceName = new JButton("Save Race Name");
+		jbtSaveRaceName.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				rName = jtfRaceName.getText();
+			}
+		});
 		//menuBPanel || Row 2 || Run Simulation
 		JButton jbtRunSim = new JButton("Run Simulation");
 
@@ -538,7 +541,7 @@ public class Menu extends JFrame implements ActionListener{
 		
 		//R1
 		menuBPanel.add(jbtRefresh);
-		menuBPanel.add(jbtSaveRace);
+		menuBPanel.add(jbtSaveRaceName);
 		menuBPanel.add(jbtRunSim);
 		
 		
