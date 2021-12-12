@@ -1,11 +1,8 @@
-/**
- * 
- */
 package Default;
 
 /**
+ * An object class which helps to simulate the effects of real-Life weather. 
  * @author baude2d, dunha2j
- *
  */
 public class Weather {
 	
@@ -13,9 +10,6 @@ public class Weather {
 	public double windSpeedMPS;
 	public double tempInCelsius;
 	public String visibility;
-	
-	
-	public Weather () {}
 	
 	public Weather (String precipitation, double windSpeedMPS, double tempInCelsius, String visibility) {
 		this.precipitation = precipitation;

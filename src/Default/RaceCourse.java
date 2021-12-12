@@ -19,11 +19,33 @@ public class RaceCourse {
 	public double elevation; // height above sea level (meters)
 	public double maxElevation = 100;
 	public double slope;
+	static double hazardChance = 0.00005;
 
 	public Weather weatherObj;
 	
 	public RaceCourse() throws Exception {}
 	
+	//Constructor not including Parameters
+	public RaceCourse(String name, double lengthInKM, double slope, double checkPoints, Weather weatherObj) throws Exception {
+		if(lengthInKM <= 0) {
+			throw new Exception("Length is less than or equal to 0");
+		}
+		if(checkPoints <= 0) {
+			throw new Exception("Checkpoints less than or equal to 0");
+		}
+//		if(terrain == "" || hazard == "") {
+//			throw new Exception("Strings are empty");
+//		}
+		this.name = name;
+		this.lengthInKM = lengthInKM;
+		this.checkPoints = checkPoints;
+//		this.elevation = elevation;
+		this.slope = slope;
+//		this.terrain = terrain;
+		this.weatherObj = weatherObj;
+	}
+	
+	//Constructor Including Hazards
 	public RaceCourse(String name, double lengthInKM, double slope, double checkPoints, Map<String, Double> hazards, Weather weatherObj) throws Exception {
 		if(lengthInKM <= 0) {
 			throw new Exception("Length is less than or equal to 0");
@@ -44,6 +66,19 @@ public class RaceCourse {
 		this.weatherObj = weatherObj;
 	}
 	
+	
+	/**
+	 * Determines if hazard has occured by random chance. The threshold chance
+	 * of a hazard occuring is determined by the RaceCourse's hazards.
+	 * @return - (True) If a hazard has occured, (False) If no hazard occured
+	 */
+	public boolean checkHazards() {
+		if((Math.random() * ((1 - 0.00001) + 0.00001)) <= this.hazardChance)
+			return true;
+		
+		return false;
+	}
+	
 	/**
 	 * Is used to see if a hazard occurs to a Cyclist during a race. 
 	 * Currently, if a hazard occurs, the Cyclist is removed from the 
@@ -54,7 +89,7 @@ public class RaceCourse {
 		String hazard = "";
 		double sum = 0;
 
-		// Selecting random hazard from the hazardMap.
+		// Selecting random hazard from this course's hazards.
 		for (Map.Entry<String, Double> hazardEntry : hazards.entrySet()) {
 			double randomPercent = (Math.random() * (100 + 1) - 1);
 			sum += hazardEntry.getValue();

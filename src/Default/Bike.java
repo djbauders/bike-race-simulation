@@ -1,8 +1,17 @@
 package Default;
 
 /**
+ * An object class which holds the important variables to simulate a bicycle.
+ * 
+ * IMPORTANT VARIABLES OF THE CLASS:
+ * 	- bikeMass : The total mass of the bike, measured in kg.
+ * 	- rollingResistanceCoe* : The coefficent which represents the rolling 
+ * 	  resistance between the bike tire and the surface it is traversing.
+ * 	- classification : The type of bike. This grants no tradeoffs in the 
+ *    current state of the program. 
+ *     
+ *    *Currently set to represent firm, road-racing, tires against pavement 
  * @author baude2d, dunha2j
- *
  */
 public class Bike{
 	
@@ -27,6 +36,10 @@ public class Bike{
 	public String getMake() {
         return make;
     }
+	
+	public String getModel() {
+		return model;
+	}
 
 	public double getRollingResistanceCoe() {
 		return rollingResistanceCoe;

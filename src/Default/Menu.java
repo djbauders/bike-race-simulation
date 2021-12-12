@@ -53,6 +53,12 @@ public class Menu extends JFrame implements ActionListener{
 	static ArrayList<Double> velocityList = new ArrayList<Double>();
 	static Map<String, Double> hazardMap = new LinkedHashMap<String, Double>();
 	static ArrayList<String> hazardNames = new ArrayList<String>();
+	
+	static Map<Cyclist,String> finishedCyclists = new LinkedHashMap<Cyclist,String>();
+	static Map<Cyclist,String> dnfCyclists = new LinkedHashMap<Cyclist,String>();
+	
+	RaceCourse currentRace = new RaceCourse();
+	
 	String cName;
 	
 	static double currLength = 120;
@@ -312,7 +318,7 @@ public class Menu extends JFrame implements ActionListener{
 		int p2 = numIterations / 60;
 		int p3 = p2 % 60;
 		p2 = p2 / 60;
-		clock = p2 + ":" + p3 + ":" + p1 + "\n\n";
+		clock = " " + p2 + ":" + p3 + ":" + p1 + "\n\n";
 		return clock;
 	}
 
@@ -323,27 +329,64 @@ public class Menu extends JFrame implements ActionListener{
 		for(int i = 0; i < cyclistList.size(); i++) {
 			String strName = "";
 			strName = cyclistList.get(i).getName();
+			double currentVelocity = Simulation.calculateVelocity(cyclistList.get(i), currentRace, iterations);
+			//Checking if a hazard occurs.
+			if(courseList.get(0).checkHazards()) {
+				dnfCyclists.put(cyclistList.get(i),currentRace.selectHazard());
+				velocityList.remove(i);
+				cyclistList.remove(i);
+				continue;
+			}	
 			if(velocityList.size() < cyclistList.size()) {
-				velocityList.add(Simulation.calculateVelocity(cyclistList.get(i), courseList.get(courseIndex), weatherList.get(weatherIndex), iterations));
+				velocityList.add(currentVelocity);
 				distance = velocityList.get(i);
 				velocityList.set(i, distance);
 				distance = distance / 1000;
-			}
-			if(iterations >= 2) {
-				distance = velocityList.get(i) + Simulation.calculateVelocity(cyclistList.get(i), courseList.get(courseIndex), weatherList.get(weatherIndex), iterations);
+			}else if(iterations >= 2) {
+				distance = velocityList.get(i) + currentVelocity;
 				velocityList.set(i, distance);
 				distance = distance / 1000;
 			}
-		
+			
+			if(distance >= currentRace.lengthInKM) {
+				finishedCyclists.put(cyclistList.get(i), buildClock(iterations));
+				velocityList.remove(i);
+				cyclistList.remove(i);
+			}
+			
 			if(j != 1) {
 				results = "";
 			} else {
-			results += strName + "\t Current Distance (KM): " + df.format(distance) + "\n";
+			results += " " + strName + "\t  " + df.format(distance) + "\t   " + String.format("%.2f", currentVelocity) + "\t   "+ String.format("%.2f", cyclistList.get(i).getCurrentPower()) +" \n";
 			}
 		}
 		}
+		System.out.println(iterations);
+		results += " ================================================ \n" +
+					" Name         |     Distance(km)    |    Velocity(m/s)   |    Power(Watts)\n" 
+				   + " ================================================ \n";
+		results += " ================================================ \n" +
+					" Race: " + currentRace.getCourseName() + "   |   Distance(km): " + currentRace.getlengthInKM()+ "\n"
+				   + " ================================================ \n";
 		
-		
+		//Displaying Cyclists who have finished
+		if(!finishedCyclists.isEmpty()) {
+			results += "\n ---------------------------------------------------------";
+			results += "\n Finished Cyclists \n";
+			results += " -----------------------------------------------------------\n";
+			for(Map.Entry<Cyclist, String> cyclist: finishedCyclists.entrySet()) {
+				results += " " + cyclist.getKey().getName() + " : " + cyclist.getValue();
+			}
+		}
+		//Displaying Cyclists who DNF
+		if(!dnfCyclists.isEmpty()) {
+			results += " --------------------------------------------------------- ";
+			results += "\n DNF Cyclists \n";
+			results += " --------------------------------------------------------- \n";
+			for(Map.Entry<Cyclist, String> cyclist : dnfCyclists.entrySet()) {
+				results += " " + cyclist.getKey().getName() + " : " + cyclist.getValue() + "\n";
+			}
+		}
 		return results;
 	}
 	
@@ -397,6 +440,7 @@ public class Menu extends JFrame implements ActionListener{
 		}
 		jcbCourse.setRenderer(new CourseListCellRenderer());
 		jcbCourse.setBorder(bLineBorder);
+		
 		//menuGrid || Row 3 || Your Cyclist
 		JLabel jlCyclist = new JLabel("Your Cyclist");
 		jlCyclist.setFont(tnr);
@@ -448,6 +492,7 @@ public class Menu extends JFrame implements ActionListener{
 		jbtRunSim.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
 				courseIndex = jcbCourse.getSelectedIndex();
+				currentRace = courseList.get(courseIndex);
 				menuTabbedPane.setSelectedIndex(4);
 			}
 		});

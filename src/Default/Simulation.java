@@ -1,7 +1,6 @@
-/**
- * 
- */
 package Default;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,18 +16,21 @@ interface Func {
 }
 
 /**
+ * Simulation is used to calculate information for races and for holding default objects 
+ * used by the program. 
+ * 
+ * IMPORTANT VARIABLES FOR THIS CLASS: 
+ *  - GRAVITATIONALACCEL (M/S^2) : The free falling acceleration of an object
+ *     due to earth's gravity. 
+ *  - VDDROLLINGRESISTANCECOE : The velocity-dependent dynamic rolling resistance,
+ *     approximated to 0.1.
+ *	- POWERTRANSLOSSCOE : Cofficient for power transmission losses due to tire
+ *	   slippage. 
+ *  - AIRDENTSITYATSL : Air density at Sea Level, 0 Degreees Celsius (kg/m^3).
+ *  - AIRPRESSUREATSL : Air Pressure at Sea Level, 0 Degrees Celsius (Pascals).
  * @author baude2d, dunha2j
- *
  */
-public class Simulation{
-	private RaceCourse course;
-	private ArrayList<Cyclist> competitors; 
-	
-	
-	public Simulation(RaceCourse course, ArrayList<Cyclist> competitors) {
-		this.course = course;
-		this.competitors = competitors;
-	}
+public class Simulation{ 
 
 	static ArrayList<Bike> bikeList = new ArrayList<Bike>();
 	static ArrayList<Cyclist> cyclistList = new ArrayList<Cyclist>();
@@ -41,22 +43,11 @@ public class Simulation{
 	final static double AIRDENSITYATSL = 1.293; 
 	final static double AIRPRESSUREATSL = 101325; 
 	final static double GRAVITYACCEL = 9.81; 
-	static double hazardChance = 0.5;
+	
 
 	// other variables for calculating velocity
 	static double rollingResistanceCoe; // Bike tire on asphalt
-	static double totalFrontalArea; // m^2
-
-	public static void main(String[] args) throws Exception {
-		loadDefaultItems();
-
-		Weather weatherObj = new Weather("Rain", 0, 0, "Foggy"); // Change to degrees celcius
-		RaceCourse course = new RaceCourse("Bill's Hills", 100.0, 0, 30, hazardMap, weatherObj);
-
-	}
-
 	
-
 	/**
 	 * A simple method that adds the default values for several static lists that
 	 * referenced by the program. 
@@ -152,40 +143,36 @@ public class Simulation{
 	 * @param time - The current time that the Cyclist has spent racing. 
 	 * @return The velocity of the Cylist (m/s) 
 	 */
-	public static double calculateVelocity(Cyclist racer, RaceCourse course, Weather weatherObj, double time) {
+	public static double calculateVelocity(Cyclist racer, RaceCourse course, double time) {
 		double velocity = 0;
-		racer.adjustCurrentPower(time, course.getSlope());
 		
+		racer.adjustCurrentPower(time, course.getSlope());
 		double dynamicRollingResistanceNRN = VDDROLLINGRESISTANCECOE;
-		double windSpeed = weatherObj.getWindSpeedMPS();
+		double windSpeed = course.getWeatherObj().getWindSpeedMPS();
 		double airDensity = AIRDENSITYATSL;
 		double rollingFriction = calcRollingFriction(racer, course.getSlope());
 
-		Func a = (double w, double cRVN, double cD, double A, double PAD, double fRG, double cM,
-				double p) -> ((Math.pow(w, 3) - Math.pow(cRVN, 3)) / 27)
-						- ((w * (5 * w * cRVN + ((8 * Math.pow(cRVN, 2)) / (A * PAD)) - (6 * fRG))) / (9 * A * PAD))
-						+ ((2 * fRG * cRVN) / (3 * Math.pow((A * PAD), 2))) + (p / (cM * A * PAD));
-		Func b = (double w, double cRVN, double cD, double A, double PAD, double fRG, double cM,
-				double p) -> ((2) / (9 * A * PAD))
-						* (3 * fRG - (4 * w * cRVN) - (Math.pow(w, 2) * A * (PAD / 2)) - ((2 * cRVN) / (A * PAD)));
+		Func a = (double w, double cRVN, double cD, double A, double PAD, double fRG, double cM, double p) -> ((Math.pow(w, 3) - Math.pow(cRVN, 3)) / 27)
+				- ((w * (5 * w * cRVN + ((8 * Math.pow(cRVN, 2)) / (A * PAD)) - (6 * fRG))) / (9 * A * PAD)) + ((2 * fRG * cRVN) / (3 * Math.pow((A * PAD), 2))) 
+				+ (p / (cM * A * PAD));
+		
+		Func b = (double w, double cRVN, double cD, double A, double PAD, double fRG, double cM, double p) -> ((2) / (9 * A * PAD)) * (3 * fRG - (4 * w * cRVN) 
+				- (Math.pow(w, 2) * A * (PAD / 2)) - ((2 * cRVN) / (A * PAD)));
 
-		double aVal = a.apply(windSpeed, dynamicRollingResistanceNRN, racer.getAirDragCoefficent(),
-				racer.getEffectiveDragArea(), airDensity, rollingFriction, POWERTRANSLOSSCOE, racer.getRiderFTP());
-		double bVal = b.apply(windSpeed, dynamicRollingResistanceNRN, racer.getAirDragCoefficent(),
-				racer.getEffectiveDragArea(), airDensity, rollingFriction, POWERTRANSLOSSCOE, racer.getRiderFTP());
+		double aVal = a.apply(windSpeed, dynamicRollingResistanceNRN, racer.getAirDragCoefficent(), racer.getEffectiveDragArea(), airDensity, rollingFriction,
+					POWERTRANSLOSSCOE, racer.getCurrentPower());
+		double bVal = b.apply(windSpeed, dynamicRollingResistanceNRN, racer.getAirDragCoefficent(), racer.getEffectiveDragArea(), airDensity, rollingFriction, 
+					POWERTRANSLOSSCOE, racer.getCurrentPower());
 
 		// Velocity for pedaling on flat or inclined terrain
-		if (Math.pow(aVal, 2) + Math.pow(bVal, 3) >= 0) {
-			velocity = Math.cbrt(aVal + Math.sqrt(Math.pow(aVal, 2) + Math.pow(bVal, 3)))
-					+ Math.cbrt(aVal - Math.sqrt(Math.pow(aVal, 2) + Math.pow(bVal, 3)))
-					- ((2.0 / 3.0) * (windSpeed + (dynamicRollingResistanceNRN
-							/ (racer.getAirDragCoefficent() * racer.getEffectiveDragArea() * airDensity))));
+		if (Math.pow(aVal, 2) + Math.pow(bVal, 3) >= 0) { 
+			velocity = Math.cbrt(aVal + Math.sqrt(Math.pow(aVal, 2) + Math.pow(bVal, 3))) + Math.cbrt(aVal - Math.sqrt(Math.pow(aVal, 2) + Math.pow(bVal, 3))) 
+					   - ((2.0 / 3.0) * (windSpeed + (dynamicRollingResistanceNRN / (racer.getAirDragCoefficent() * racer.getEffectiveDragArea() * airDensity))));
 			// Velocity for descending from a hill
 		} else if (Math.pow(aVal, 2) + Math.pow(bVal, 3) < 0) {
 			// Not necessarily accurate, but functions
-			velocity = (2 * Math.sqrt(-bVal)) * Math.cos(Math.toRadians((1 / 3) * aVal / Math.sqrt(Math.pow(-bVal, 3))))
-					- (2 / 3) * (windSpeed + (dynamicRollingResistanceNRN
-							/ (racer.getAirDragCoefficent() * racer.getEffectiveDragArea() * airDensity)));
+			velocity = (2 * Math.sqrt(-bVal)) * Math.cos(Math.toRadians((1 / 3) * aVal / Math.sqrt(Math.pow(-bVal, 3)))) - (2 / 3) * 
+					   (windSpeed + (dynamicRollingResistanceNRN / (racer.getAirDragCoefficent() * racer.getEffectiveDragArea() * airDensity)));
 		}
 
 		return velocity;
@@ -208,6 +195,20 @@ public class Simulation{
 
 		return (GRAVITYACCEL * (totalMass)) * (rollingResistanceCoe * Math.cos(B) + Math.sin(B));
 	}
+	
+	public static void main(String[] args) throws Exception {
+		loadDefaultItems();
+		
+		Weather weatherObj = new Weather("Rain", 3, 0, "Foggy");
+		RaceCourse course = new RaceCourse("Test", 100, 8, 1, weatherObj);
+		Cyclist Brandon = new Cyclist("Brandon", 70.76, 158, 0.4738, 0.96759, 345, "Climber", new Bike("Trek", "Madone SLR 9", 2021, 7.5, 0.00330, "Carbon", "Road Race"));
+		Cyclist Alec = new Cyclist("Alec", 59.87, 150, 0.4387, 0.96759, 303, "Climber",  new Bike("Trek", "Madone SLR 9", 2021, 7.5, 0.00330, "Carbon", "Road Race"));
+		Cyclist Josh = new Cyclist("Josh", 106, 155, 0.4738, 0.96759, 414, "Sprinter", new Bike("Canyon", "SpeedMax CF 8", 2021, 8.39, 0.00330, "Carbon", "Time Trail")); 
+		
+		System.out.println(calculateVelocity(Brandon, course, 1));
+
+	}
+
 	
 	//Unutilized calcAirDensity method
 		/*
