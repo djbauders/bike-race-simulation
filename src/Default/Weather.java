@@ -18,6 +18,13 @@ public class Weather {
 		this.visibility = visibility;
 	}
 
+	public static String getWeatherString(Weather weather) {
+		String str = "";
+		str += (weather.getPrecipitation() + "\nWind Speed (MPS) = " + weather.getWindSpeedMPS() +
+				"\nTemperature (C) = " + weather.getTempInCelsius() + " degrees\nVisibility = " +
+				weather.getVisibility());
+		return str;
+	}
 	public String getPrecipitation() {
 		return precipitation;
 	}

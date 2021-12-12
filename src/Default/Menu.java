@@ -51,8 +51,10 @@ public class Menu extends JFrame implements ActionListener{
 	static ArrayList<Weather> weatherList = new ArrayList<Weather>();
 	static ArrayList<String> cyclistStyleList = new ArrayList<String>();
 	static ArrayList<Double> velocityList = new ArrayList<Double>();
+	
 	static Map<String, Double> hazardMap = new LinkedHashMap<String, Double>();
 	static ArrayList<String> hazardNames = new ArrayList<String>();
+	static ArrayList<Double> hazardValues = new ArrayList<Double>();
 	
 	static Map<Cyclist,String> finishedCyclists = new LinkedHashMap<Cyclist,String>();
 	static Map<Cyclist,String> dnfCyclists = new LinkedHashMap<Cyclist,String>();
@@ -173,9 +175,13 @@ public class Menu extends JFrame implements ActionListener{
 		cyclistStyleList.add("Time Trialist"); // Slight Bonus when riding alone 
 		cyclistStyleList.add("Descender"); //Can still output wattage at up to 15% grade
 		
-		weatherList.add(new Weather("None", 0, 65, "Clear"));
+		weatherList.add(new Weather("Clear", 0, 65, "Clear"));
+		weatherList.add(new Weather("Windy", 12, 54, "Clear"));
+		weatherList.add(new Weather("Rain", 3, 62, "Reduced"));
 
-		courseList.add(new RaceCourse("Course 1", 100, 0, 32, hazardMap, weatherList.get(0)));
+		courseList.add(new RaceCourse("Course 1", 120, 0, 32, hazardMap, weatherList.get(0)));
+		courseList.add(new RaceCourse("Course 2", 143, 0, 36, hazardMap, weatherList.get(1)));
+		courseList.add(new RaceCourse("Course 3", 92, 0, 29, hazardMap, weatherList.get(2)));
 		
 		hazardMap.put("Mechanical : Popped Tire", 25.0);
 		hazardMap.put("Mechanical : Snapped Chain", 15.0);
@@ -188,6 +194,19 @@ public class Menu extends JFrame implements ActionListener{
 		String key = entry.getKey();
 		hazardNames.add(key);
 	}
+		for (Map.Entry<String, Double> entry : hazardMap.entrySet()) {
+		double val = entry.getValue();
+		hazardValues.add(val);
+	}
+	}
+	
+	public static String getHazardString(int index) {
+		String hName = hazardNames.get(index);
+		double hVal = hazardValues.get(index);
+		String str = "";
+		str += (hName + "\nProbability of hazard, if one occurs = " + hVal +
+				"\nHazard disqualifies cyclist");
+		return str;
 	}
 	
 	public class CyclistListCellRenderer extends DefaultListCellRenderer {
@@ -326,6 +345,7 @@ public class Menu extends JFrame implements ActionListener{
 		String results = "";
 		double distance = 0;
 		for(int j = numIterations; j > 0; j--) {
+			iterations++;
 		for(int i = 0; i < cyclistList.size(); i++) {
 			String strName = "";
 			strName = cyclistList.get(i).getName();
@@ -361,14 +381,15 @@ public class Menu extends JFrame implements ActionListener{
 			}
 		}
 		}
-		System.out.println(iterations);
+//		System.out.println(iterations);
+		if(cyclistList.size() > 0) {
 		results += " ================================================ \n" +
 					" Name         |     Distance(km)    |    Velocity(m/s)   |    Power(Watts)\n" 
 				   + " ================================================ \n";
 		results += " ================================================ \n" +
 					" Race: " + currentRace.getCourseName() + "   |   Distance(km): " + currentRace.getlengthInKM()+ "\n"
 				   + " ================================================ \n";
-		
+		}
 		//Displaying Cyclists who have finished
 		if(!finishedCyclists.isEmpty()) {
 			results += "\n ---------------------------------------------------------";
@@ -556,7 +577,7 @@ public class Menu extends JFrame implements ActionListener{
 
 		jbtRCName.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				int nPlusOne = courseNameList.size() + 1;
+				int nPlusOne = courseList.size() + 1;
 				jtfCourseName.setText("Course " + nPlusOne);
 				
 			}
@@ -627,7 +648,7 @@ public class Menu extends JFrame implements ActionListener{
 		
 		jbtRWeather.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				double i = ((Math.random() * (weatherList.size() - 1)) + 1);
+				double i = ((Math.random() * ((weatherList.size() + 1) - 1)) + 1);
 				jcbWeather.setSelectedIndex((int) i - 1);
 			}
 		});
@@ -941,8 +962,9 @@ public class Menu extends JFrame implements ActionListener{
 			jcbVOCyclist.addItem(cyclistList.get(i));
 		}
 		jcbVOCyclist.setRenderer(new CyclistListCellRenderer());
+
 		//objGrid || Row 2 ||
-		JLabel voBike = new JLabel("Default Cyclists");
+		JLabel voBike = new JLabel("Default Bikes");
 		voBike.setFont(tnr);
 		voBike.setForeground(gold);
 		
@@ -977,19 +999,42 @@ public class Menu extends JFrame implements ActionListener{
 		for(int i = 0; i < hazardNames.size(); i++) {
 			jcbVOHazards.addItem(hazardNames.get(i));
 		}
-		
-		//objGrid || Row 5 || 
-//		JLabel voRStyle = new JLabel("Default Rider Styles");
-//		
-//		JButton displayRStyle = new JButton("D");
-		
-		//Add rsyle list and create combox with styleList.get(i);
 		//END OF objGrid
 		
 		//START OF summaryPanel
 		JTextArea summaryArea = new JTextArea();
 		summaryArea.setBorder(bLineBorder);
+		summaryArea.setFont(tnr);
 		//END OF summarayPanel
+		
+		displayCyclist.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				int index = jcbVOCyclist.getSelectedIndex();
+				String str = Cyclist.getRacerString(cyclistList.get(index));
+				summaryArea.setText(str);
+			}
+		});
+		displayBike.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				int index = jcbVOBike.getSelectedIndex();
+				String str = Bike.getBikeString(bikeList.get(index));
+				summaryArea.setText(str);
+			}
+		});
+		displayWeather.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				int index = jcbVOWeather.getSelectedIndex();
+				String str = Weather.getWeatherString(weatherList.get(index));
+				summaryArea.setText(str);
+			}
+		});
+		displayHazards.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				int index = jcbVOHazards.getSelectedIndex();
+				String str = getHazardString(index);
+				summaryArea.setText(str);
+			}
+		});
 		
 		objGrid.add(voCyclist);
 		objGrid.add(createButtonPanel(displayCyclist, "Display > "));
@@ -1007,9 +1052,7 @@ public class Menu extends JFrame implements ActionListener{
 		objGrid.add(createButtonPanel(displayHazards, "Display > "));
 		objGrid.add(jcbVOHazards);
 		
-//		objGrid.add(voRStyle);
-//		objGrid.add(createButtonPanel(displayRStyle, "Display > "));
-//		objGrid.add(jcbVORStyle);
+		summaryPanel.add(summaryArea);
 		
 		viewObjectsPage.add(objGrid);
 		viewObjectsPage.add(summaryPanel);
@@ -1022,7 +1065,8 @@ public class Menu extends JFrame implements ActionListener{
 		simulationPage.setBackground(maroon);
 		JPanel viewSimPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		viewSimPanel.setBackground(maroon);
-		JPanel simButtonPanel = new JPanel(new GridLayout(0,3,30,30));
+
+		JPanel simButtonPanel = new JPanel(new GridLayout(0,4,30,30));
 		simButtonPanel.setBackground(maroon);
 		
 		TitledBorder simTitle = new TitledBorder("View Simulation");
@@ -1031,11 +1075,10 @@ public class Menu extends JFrame implements ActionListener{
 		
 		//START OF viewSimPanel
 		//viewSimPanel || JTextArea to display race
-		JTextArea jtaSimulation = new JTextArea("Run Simulation on the menu to get started. \n"
-				+ "If you run without making changes, a default race will take place.");
-		
+		JTextArea jtaSimulation = new JTextArea("Run Simulation on the menu to get started. \n\n\n\n");
 		jtaSimulation.setBorder(bLineBorder);
 		jtaSimulation.setEditable(false);
+		jtaSimulation.setFont(tinyTNR);
 		//END OF viewSimPanel
 		
 		//START OF simButtonPanel
@@ -1043,7 +1086,7 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbtOneSecond = new JButton(">");
 		jbtOneSecond.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				iterations += 1;
+//				iterations += 1;
 				String str = buildString(1);
 				String clock = buildClock(iterations);
 
@@ -1053,18 +1096,28 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbt30Seconds = new JButton(">>");
 		jbt30Seconds.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				iterations += 30;
+//				iterations += 30;
 				String str = buildString(30);
 				String clock = buildClock(iterations);
 
 				jtaSimulation.setText(clock + str);
 			}
 		});
-		JButton jbtOneMinute = new JButton(">>>");
-		jbtOneMinute.addActionListener(new ActionListener() { 
+		JButton jbt5Minutes = new JButton(">>>");
+		jbt5Minutes.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				iterations += 60;
-				String str = buildString(60);
+//				iterations += 300;
+				String str = buildString(300);
+				String clock = buildClock(iterations);
+
+				jtaSimulation.setText(clock + str);
+			}
+		});
+		JButton jbt30Minutes = new JButton(">>>>");
+		jbt30Minutes.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+//				iterations += 1800;
+				String str = buildString(1800);
 				String clock = buildClock(iterations);
 
 				jtaSimulation.setText(clock + str);
@@ -1077,7 +1130,8 @@ public class Menu extends JFrame implements ActionListener{
 		viewSimPanel.add(jtaSimulation);
 		simButtonPanel.add(createButtonPanel(jbtOneSecond,"One second > "));
 		simButtonPanel.add(createButtonPanel(jbt30Seconds, "30 Seconds > "));
-		simButtonPanel.add(createButtonPanel(jbtOneMinute, "One Minute > "));
+		simButtonPanel.add(createButtonPanel(jbt5Minutes, "5 Minutes > "));
+		simButtonPanel.add(createButtonPanel(jbt30Minutes, "30 Minutes > "));
 		simulationPage.add(viewSimPanel);
 		simulationPage.add(simButtonPanel);
 		return simulationPage;

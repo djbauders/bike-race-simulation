@@ -33,12 +33,34 @@ public class Bike{
 		this.classification = classification;
 	}
 	
+	public static String getBikeString(Bike bike) {
+		String str = "";
+		str += (bike.getMake() + " | " + bike.getModel() +
+				"\nYear = " + bike.getYear() + "\nMass = " + bike.getBikeMass() +
+				"\nRolling Resistance Coefficient = " + bike.getRollingResistanceCoe() + 
+				"\nFrame Material = " + bike.getFrameMaterial() + "\nClassification = " +
+				bike.getClassification());
+		return str;
+	}
+	
 	public String getMake() {
         return make;
     }
 	
 	public String getModel() {
 		return model;
+	}
+	
+	public int getYear() {
+		return year;
+	}
+	
+	public String getFrameMaterial() {
+		return frameMaterial;
+	}
+	
+	public String getClassification() {
+		return classification;
 	}
 
 	public double getRollingResistanceCoe() {
