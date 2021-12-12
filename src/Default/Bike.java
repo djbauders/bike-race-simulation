@@ -1,7 +1,4 @@
-/**
- * 
- */
-package cmu_baude2d;
+package Default;
 
 /**
  * @author baude2d, dunha2j
@@ -9,11 +6,41 @@ package cmu_baude2d;
  */
 public class Bike{
 	
-	public int wheelDiameter;
-
-	public Bike () {}
+	private String make;
+	private String model;
+	private int year;
+	private double bikeMass;
+	private double rollingResistanceCoe;
+	private String frameMaterial; 
+	private String classification;
 	
-	public Bike (int wheelDiameter) {
-		this.wheelDiameter = wheelDiameter;
+	public Bike(String make, String model, int year, double bikeMass, double rollingResistanceCoe, String frameMaterial, String classification) {
+		this.make = make;
+		this.model = model;
+		this.year = year;
+		this.bikeMass = bikeMass;
+		this.rollingResistanceCoe = rollingResistanceCoe;
+		this.frameMaterial = frameMaterial;
+		this.classification = classification;
+	}
+	
+	public String getMake() {
+        return make;
+    }
+
+	public double getRollingResistanceCoe() {
+		return rollingResistanceCoe;
+	}
+
+	public void setRollingResistanceCoe(double rollingResistanceCoe) {
+		this.rollingResistanceCoe = rollingResistanceCoe;
+	}
+
+	public double getBikeMass() {
+		return bikeMass;
+	}
+
+	public void setBikeWeight(double bikeMass) {
+		this.bikeMass = bikeMass;
 	}
 }
