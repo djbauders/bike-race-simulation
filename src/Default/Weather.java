@@ -1,7 +1,7 @@
 /**
  * 
  */
-package Default;
+package cmu_baude2d;
 
 /**
  * @author baude2d, dunha2j
@@ -11,17 +11,15 @@ public class Weather {
 	
 	public String precipitation;
 	// public int precInInches;
-	public double windSpeedKPH;
-	public double temperatureInF;
+	public int temperatureInF;
 	public String visibility;
 	//public int visibilityInYards;
 	
 	
 	public Weather () {}
 	
-	public Weather (String precipitation, double windSpeedKPH, double temperatureInF, String visibility) {
+	public Weather (String precipitation, int temperatureInF, String visibility) {
 		this.precipitation = precipitation;
-		this.windSpeedKPH = windSpeedKPH;
 		this.temperatureInF = temperatureInF;
 		this.visibility = visibility;
 	}
@@ -33,20 +31,12 @@ public class Weather {
 	public void setPrecipitation(String precipitation) {
 		this.precipitation = precipitation;
 	}
-	
-	public double getWindSpeedKPH() {
-		return windSpeedKPH;
-	}
-	
-	public void setWindSpeedKPH(double windSpeedKPH) {
-		this.windSpeedKPH = windSpeedKPH;
-	}
 
-	public double getTemperatureInF() {
+	public int getTemperatureInF() {
 		return temperatureInF;
 	}
 
-	public void setTemperatureInF(double temperatureInF) {
+	public void setTemperatureInF(int temperatureInF) {
 		this.temperatureInF = temperatureInF;
 	}
 
