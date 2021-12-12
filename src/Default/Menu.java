@@ -52,12 +52,14 @@ public class Menu extends JFrame implements ActionListener{
 	static ArrayList<String> cyclistStyleList = new ArrayList<String>();
 	static ArrayList<Double> velocityList = new ArrayList<Double>();
 	static Map<String, Double> hazardMap = new LinkedHashMap<String, Double>();
+	static ArrayList<String> hazardNames = new ArrayList<String>();
 	String cName;
 	
 	static double currLength = 120;
 	static double currCP = 32;
 	
-	
+	static int weatherIndex = 0;
+	static int courseIndex = 0;
 	static int iterations = 0;
 	
 	DecimalFormat df = new DecimalFormat("#,###.###");
@@ -112,16 +114,11 @@ public class Menu extends JFrame implements ActionListener{
 		JComponent menuPage = createMenuPage();
 		JComponent coursePage = createCoursePage();
 		JComponent cyclistPage = createCyclistPage();
-//		JComponent bikePage = createBikePage();
-//		JComponent weatherPage = createWeatherPage();
 		JComponent viewObjectsPage = createViewObjectsPage();
 		JComponent simulationPage = createSimulationPage();
 		
 		//Adding pages to card layout
 		jpMenuCard.add(menuPage, "Menu");
-//		jpMenuCard.add(coursePage, "Build Course");
-//		jpMenuCard.add(cyclistPage, "Build Cyclist");
-//		jpMenuCard.add(savedPage, "Saved Objects");
 		
 		//Action events/listeners
 		
@@ -129,8 +126,6 @@ public class Menu extends JFrame implements ActionListener{
 		menuTabbedPane.addTab("Menu", menuPage);
 		menuTabbedPane.addTab("Build Course", coursePage);
 		menuTabbedPane.addTab("Build Cyclist", cyclistPage);
-//		menuTabbedPane.addTab("Build Bike", bikePage);
-//		menuTabbedPane.addTab("Build Weather", weatherPage);
 		menuTabbedPane.addTab("View Objects", viewObjectsPage);
 		menuTabbedPane.addTab("View Simulation", simulationPage);
 		jpMenuCard.add(menuTabbedPane);
@@ -175,6 +170,18 @@ public class Menu extends JFrame implements ActionListener{
 		weatherList.add(new Weather("None", 0, 65, "Clear"));
 
 		courseList.add(new RaceCourse("Course 1", 100, 0, 32, hazardMap, weatherList.get(0)));
+		
+		hazardMap.put("Mechanical : Popped Tire", 25.0);
+		hazardMap.put("Mechanical : Snapped Chain", 15.0);
+		hazardMap.put("Mechanical : Cracked Frame", 8.0);
+		hazardMap.put("Crash : Tire Slipped on Turn", 25.0);
+		hazardMap.put("Crash : Hit Team Car", 5.0);
+		hazardMap.put("Crash : Rode into Pothole", 18.0);
+		
+		for (Map.Entry<String, Double> entry : hazardMap.entrySet()) {
+		String key = entry.getKey();
+		hazardNames.add(key);
+	}
 	}
 	
 	public class CyclistListCellRenderer extends DefaultListCellRenderer {
@@ -201,7 +208,7 @@ public class Menu extends JFrame implements ActionListener{
                 boolean isSelected,
                 boolean cellHasFocus) {
 	    	if (value instanceof Bike) {
-	    		value = ((Bike)value).getMake();
+	    		value = ((Bike)value).getMake() + " : " + ((Bike)value).getModel();
 	    	}
 	    	super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 	    	return this;
@@ -217,6 +224,21 @@ public class Menu extends JFrame implements ActionListener{
                 boolean cellHasFocus) {
 	    	if (value instanceof RaceCourse) {
 	    		value = ((RaceCourse)value).getCourseName();
+	    	}
+	    	super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+	    	return this;
+}
+}
+	
+	public class WeatherListCellRenderer extends DefaultListCellRenderer {
+	    public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus) {
+	    	if (value instanceof Weather) {
+	    		value = ((Weather)value).getPrecipitation();
 	    	}
 	    	super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 	    	return this;
@@ -301,14 +323,14 @@ public class Menu extends JFrame implements ActionListener{
 		for(int i = 0; i < cyclistList.size(); i++) {
 			String strName = "";
 			strName = cyclistList.get(i).getName();
-			if(iterations <= 1) {
-				velocityList.add(Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations));
+			if(velocityList.size() < cyclistList.size()) {
+				velocityList.add(Simulation.calculateVelocity(cyclistList.get(i), courseList.get(courseIndex), weatherList.get(weatherIndex), iterations));
 				distance = velocityList.get(i);
 				velocityList.set(i, distance);
 				distance = distance / 1000;
 			}
 			if(iterations >= 2) {
-				distance = velocityList.get(i) + Simulation.calculateVelocity(cyclistList.get(i), courseList.get(0), weatherList.get(0), iterations);
+				distance = velocityList.get(i) + Simulation.calculateVelocity(cyclistList.get(i), courseList.get(courseIndex), weatherList.get(weatherIndex), iterations);
 				velocityList.set(i, distance);
 				distance = distance / 1000;
 			}
@@ -370,7 +392,9 @@ public class Menu extends JFrame implements ActionListener{
 		});
 		
 		JComboBox<RaceCourse> jcbCourse = new JComboBox<RaceCourse>();
-		jcbCourse.addItem(new RaceCourse("Course 1", 100, 0,32, hazardMap, weatherList.get(0)));
+		for(int i = 0; i < courseList.size(); i++) {
+		jcbCourse.addItem(courseList.get(i));
+		}
 		jcbCourse.setRenderer(new CourseListCellRenderer());
 		jcbCourse.setBorder(bLineBorder);
 		//menuGrid || Row 3 || Your Cyclist
@@ -393,47 +417,40 @@ public class Menu extends JFrame implements ActionListener{
 
 		jcbCyclist.setBorder(bLineBorder);
 		jcbCyclist.setRenderer(new CyclistListCellRenderer());
-		//menuGrid || Row 4 || Your Bike
-//		JLabel jlBike = new JLabel("Your Bike");
-//		jlBike.setFont(tnr);
-//		jlBike.setForeground(gold);
-//		jlBike.setBackground(maroon);
-//		
-//		JButton jbtCreateBike = new JButton("+");
-//		jbtCreateBike.addActionListener(new ActionListener() { 
-//			public void actionPerformed(ActionEvent e) {
-//				menuTabbedPane.setSelectedIndex(3);
-//			}
-//		});
-//		
-//		JComboBox<String> jcbBike = new JComboBox<String>(exampleStringArr);
-//		jcbBike.setBorder(bLineBorder);
-//		//menuGrid || Row 5 || Weather
-//		JLabel jlWeather = new JLabel("Weather Conditions");
-//		jlWeather.setFont(tnr);
-//		jlWeather.setForeground(gold);
-//		jlWeather.setBackground(maroon);
-//		
-//		JButton jbtCreateWeather = new JButton("+");
-//		jbtCreateWeather.addActionListener(new ActionListener() { 
-//			public void actionPerformed(ActionEvent e) {
-//				menuTabbedPane.setSelectedIndex(4);
-//			}
-//		});
-//		
-//		JComboBox<String> jcbWeather = new JComboBox<String>(exampleStringArr);
-//		jcbWeather.setBorder(bLineBorder);
+
 		//END OF menuGrid
 		
 		//START OF menuBPanel
 		
 		//menuBPanel || Row 1 || Save Race
+		JButton jbtRefresh = new JButton("Refresh CB's");
+		jbtRefresh.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				jcbCourse.removeAllItems();
+				jcbCyclist.removeAllItems();
+				for(int i = 0; i < courseList.size(); i++) {
+					jcbCourse.addItem(courseList.get(i));
+					}
+				for(int i = 0; i < cyclistList.size(); i++) {
+					jcbCyclist.addItem(cyclistList.get(i));
+				}
+				
+			}
+		});
+		
 		JButton jbtSaveRace = new JButton("Save Race");
 		//!!!!
 		//Be sure to append List of race names with contents of jtfRaceName
 		//!!!!
 		//menuBPanel || Row 2 || Run Simulation
 		JButton jbtRunSim = new JButton("Run Simulation");
+
+		jbtRunSim.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				courseIndex = jcbCourse.getSelectedIndex();
+				menuTabbedPane.setSelectedIndex(4);
+			}
+		});
 		//END OF menuBPanel
 		
 		//add components
@@ -450,19 +467,11 @@ public class Menu extends JFrame implements ActionListener{
 		menuGrid.add(jlCyclist);
 		menuGrid.add(createButtonPanel(jbtCreateCyclist, "Create Cyclist > "));
 		menuGrid.add(jcbCyclist);
-//		//R4
-		
-//		menuGrid.add(jlBike);
-//		menuGrid.add(createButtonPanel(jbtCreateBike, "Create Bike > "));
-//		menuGrid.add(jcbBike);
-//		//R5
-//		menuGrid.add(jlWeather);
-//		menuGrid.add(createButtonPanel(jbtCreateWeather, "Create Weather > "));
-//		menuGrid.add(jcbWeather);
 		
 		menuPage.add(menuGrid);
 		
 		//R1
+		menuBPanel.add(jbtRefresh);
 		menuBPanel.add(jbtSaveRace);
 		menuBPanel.add(jbtRunSim);
 		
@@ -495,22 +504,15 @@ public class Menu extends JFrame implements ActionListener{
 		jlCourseName.setForeground(gold);
 		jlCourseName.setBackground(maroon);
 		
-		JButton jbtSaveCName = new JButton("+");
 		JButton jbtRCName = new JButton("R");
 
 		JTextField jtfCourseName = new JTextField();
 		jtfCourseName.setBorder(gLineBorder);
-		
-		jbtSaveCName.addActionListener(new ActionListener() { 
-			public void actionPerformed(ActionEvent e) {
-				String cName = jtfCourseName.getText();
-				System.out.print(cName);
-			}
-		});
+
 		jbtRCName.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
 				int nPlusOne = courseNameList.size() + 1;
-				jtfCourseName.setText("Race " + nPlusOne);
+				jtfCourseName.setText("Course " + nPlusOne);
 				
 			}
 		});
@@ -564,97 +566,27 @@ public class Menu extends JFrame implements ActionListener{
 				jtfME.setText("" + 100);
 			}
 		});
-		//courseGrid || Row 5 || Generate Hills
-		JLabel jlHills = new JLabel("Generate Hills");
-		jlHills.setFont(tnr);
-		jlHills.setForeground(gold);
-		jlHills.setBackground(maroon);
+		//courseGrid || Row 5 || Weather Object
+		JLabel jlWeather = new JLabel("Weather Object");
+		jlWeather.setFont(tnr);
+		jlWeather.setForeground(gold);
+		jlWeather.setBackground(maroon);
 		
-		JButton jbtGenerateHills = new JButton("+");
+		JButton jbtRWeather = new JButton("R");
 		
-		JTextField jtfNumHills = new JTextField();
-		jtfNumHills.setEditable(false);
-		jtfNumHills.setBackground(new Color(211,211,211));
+		JComboBox<Weather> jcbWeather = new JComboBox<Weather>();
+		for(int i = 0; i < weatherList.size(); i++) {
+			jcbWeather.addItem(weatherList.get(i));
+		}
+		jcbWeather.setRenderer(new WeatherListCellRenderer());
 		
-		jbtGenerateHills.addActionListener(new ActionListener() { 
+		jbtRWeather.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				for(int x = 0; x < 1; x++) {
-//					generateHills();
-				 //Creating hills and elevations
-				  ArrayList<Integer> cPList = new ArrayList<Integer>();
-				  ArrayList<Integer> peakList = new ArrayList<Integer>();
-				  ArrayList<Integer> elevationList = new ArrayList<Integer>();
-//				  Random r = new Random();
-				  String jtfLengthStr = jtfLength.getText();
-				  String jtfCPStr = jtfCP.getText();
-				  String jtfMEStr = jtfME.getText();
-				  if (jtfLength.getText() == null) {
-					  jtfLength.setText("Length is null");
-					  break;
-				  }
-				  if (jtfCP.getText() == null) {
-					  jtfCP.setText("Check points is null");
-				  }
-				  if (jtfME.getText() == null) {
-					  jtfME.setText("Max elevation is null");
-				  }
-				  
-					int lengthInKm = Integer.parseInt(jtfLengthStr);
-					int numCP = Integer.parseInt(jtfCPStr);
-					int maxElevation = Integer.parseInt(jtfMEStr);
-				  int numHills = (int) ((Math.random() * ((numCP / 3) - 1)) + 1);
-				  int ascend, descend;
-
-				  //Fill checkpoints with indexes given numCP
-				  for(int i = 0; i < numCP; i++) {
-					  cPList.add( i);
-				  }
-				  
-				  //Generate peak elevations for each hill
-				  for(int i = 0; i < numHills; i++) {
-					  peakList.add((int) ((Math.random() * ((maxElevation - 1)) + 1)));
-					  System.out.println("Hill num: " + (i + 1)  + "\nPeak elevation: " + peakList.get(i));
-				  }
-				  
-				  for(int i = 0; i < peakList.size(); i++) {
-					  ascend = 0;
-					  descend = 0;
-					  for(int j = ascend; j < peakList.get(i); j++) {
-						if(ascend >= peakList.get(i)) {
-							
-						} else {
-						ascend += (int) ((Math.random() * ((10 - 1)) + 1));
-						System.out.println("Rand ase: " + ascend + "Hill: " + i);
-					  	elevationList.add(ascend);
-						}
-					  }
-					  descend = ascend;
-					  for(int k = descend; k > 0; k--) {
-//						  if(descend < 0) {
-//							  descend = 0;
-//						  }
-						  if(descend <= 0) {
-						  
-						  } else {
-							  descend -= (int) ((Math.random() * ((10 - 1)) + 1));
-							  System.out.println("Random des: " + descend + "Hill: " + i);
-							  elevationList.add(descend);
-						  }
-					  } 
-				  }
-				  
-				  List<Integer> elevationDistanceList = new ArrayList<Integer>();
-				  
-				  for(int j = 0; j < elevationList.size(); j++) {
-					  for(int i = (int) lengthInKm * 1000; i >= 0; i -= 10) {
-					  elevationDistanceList.add(elevationList.get(j));
-				  	}
-				  }
-				  jtfNumHills.setText("" + numHills);
-			}
-				
+				double i = ((Math.random() * (weatherList.size() - 1)) + 1);
+				jcbWeather.setSelectedIndex((int) i - 1);
 			}
 		});
+
 		//course Grid || Row 6 || Save Course button
 		JTextField space1 = new JTextField();
 		space1.setEditable(false);
@@ -670,19 +602,17 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbtSaveCourse = new JButton("Save Your Course");
 		jbtSaveCourse.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				
+				double length = Double.parseDouble(jtfLength.getText());
+				double checkPoints = Double.parseDouble(jtfCP.getText());
+				int wlIndex = jcbWeather.getSelectedIndex();
+				try {
+					courseList.add(new RaceCourse(jtfCourseName.getText(), length, 0, checkPoints, hazardMap,  weatherList.get(wlIndex)));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
-				//!!!!
-				//Be sure to append List of course names with contents of jtfRaceName
-				//!!!!
-
-		//END OF courseGrid
-		
-		//START OF graphPanel
-		//Creating Hills and Elevations
-
-		
+		//END OF courseGrid		
 		//R1
 		courseGrid.add(jlCourseName);
 		courseGrid.add(createButtonPanel(jbtRCName, "Generate Name > "));
@@ -700,9 +630,10 @@ public class Menu extends JFrame implements ActionListener{
 		courseGrid.add(createButtonPanel(jbtDefaultME, "Default Max Elev. > "));
 		courseGrid.add(jtfME);
 		//R5
-		courseGrid.add(jlHills);
-		courseGrid.add(createButtonPanel(jbtGenerateHills, "Generate Hills > "));
-		courseGrid.add(jtfNumHills);
+		courseGrid.add(jlWeather);
+		courseGrid.add(createButtonPanel(jbtRWeather, "Random Weather > "));
+		courseGrid.add(jcbWeather);
+
 		//R6 with blank text fields to fill space
 		courseGrid.add(space1);
 		courseGrid.add(space2);
@@ -845,15 +776,26 @@ public class Menu extends JFrame implements ActionListener{
 				jtfFTP.setText("" + (int) adjustment);
 			}
 		});
-		//cyclistGrid || Row 7 || Rider Style
-		JLabel jlRiderStyle = new JLabel("Rider style");
-		jlRiderStyle.setFont(tnr);
-		jlRiderStyle.setForeground(gold);
-		jlRiderStyle.setBackground(maroon);
+		//cyclistGrid || Row 7 || Air Drag Coeff.
+		JLabel jlAirCo = new JLabel("Air Drag Coefficient");
+		jlAirCo.setFont(tnr);
+		jlAirCo.setForeground(gold);
+		jlAirCo.setBackground(maroon);
 		
-		JButton jbtRStyle = new JButton("R");
+		JButton jbtLAC = new JButton("L");
 		
-		JComboBox<String> jcbRStyle = new JComboBox<String>(exampleStringArr);
+		jbtLAC.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				Desktop d = Desktop.getDesktop();
+				try {
+					d.browse(new URI("http://www.kreuzotter.de/english/espeed.htm"));
+				} catch (IOException | URISyntaxException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		JTextField jtfADC = new JTextField();
+		jtfADC.setBorder(bLineBorder);
 		//END OF cyclistGrid
 		
 		//START OF cyclistBGrid
@@ -869,6 +811,20 @@ public class Menu extends JFrame implements ActionListener{
 		space4.setBackground(maroon);
 		space4.setForeground(maroon);
 		JButton jbtSaveCyclist = new JButton("Save Your Cyclist");
+		
+		jbtSaveCyclist.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				double mass = Double.parseDouble(jtfCMass.getText());
+				double height = Double.parseDouble(jtfCHeight.getText());
+				double EDA = Double.parseDouble(jtfEDA.getText());
+				double ADC = Double.parseDouble(jtfADC.getText());
+				int FTP = Integer.parseInt(jtfFTP.getText());
+				int bikeIndex = jcbBike.getSelectedIndex();
+				
+				cyclistList.add(new Cyclist(jtfCyclistName.getText(), mass, height, EDA, ADC, FTP, "", bikeList.get(bikeIndex)));
+				
+			}
+		});
 		//Be sure to append menu cyclist list
 		//END OF cyclistBGrid
 		
@@ -897,9 +853,12 @@ public class Menu extends JFrame implements ActionListener{
 		cyclistGrid.add(createButtonPanel(jbtFTP, "Calculate Random FTP > "));
 		cyclistGrid.add(jtfFTP);
 		//R6
-		cyclistGrid.add(jlRiderStyle);
-		cyclistGrid.add(createButtonPanel(jbtRStyle, "Random Style > "));
-		cyclistGrid.add(jcbRStyle);
+		cyclistGrid.add(jlAirCo);
+		cyclistGrid.add(createButtonPanel(jbtLAC, "Link to calculator > "));
+		cyclistGrid.add(jtfADC);
+//		cyclistGrid.add(jlRiderStyle);
+//		cyclistGrid.add(createButtonPanel(jbtRStyle, "Random Style > "));
+//		cyclistGrid.add(jcbRStyle);
 		
 		//R1
 		cyclistBPanel.add(space3);
@@ -936,6 +895,7 @@ public class Menu extends JFrame implements ActionListener{
 		for(int i = 0; i < cyclistList.size(); i++) {
 			jcbVOCyclist.addItem(cyclistList.get(i));
 		}
+		jcbVOCyclist.setRenderer(new CyclistListCellRenderer());
 		//objGrid || Row 2 ||
 		JLabel voBike = new JLabel("Default Cyclists");
 		voBike.setFont(tnr);
@@ -947,6 +907,7 @@ public class Menu extends JFrame implements ActionListener{
 		for(int i = 0; i < bikeList.size(); i++) {
 			jcbVOBike.addItem(bikeList.get(i));
 		}
+		jcbVOBike.setRenderer(new BikeListCellRenderer());
 		//objGrid || Row 3 ||
 		JLabel voWeather = new JLabel("Default Weather Conditions");
 		voWeather.setFont(tnr);
@@ -958,6 +919,7 @@ public class Menu extends JFrame implements ActionListener{
 		for(int i = 0; i < weatherList.size(); i++) {
 			jcbVOWeather.addItem(weatherList.get(i));
 		}
+		jcbVOWeather.setRenderer(new WeatherListCellRenderer());
 		//objGrid || Row 4 ||
 		JLabel voHazards = new JLabel("Default Hazards");
 		voHazards.setFont(tnr);
@@ -966,9 +928,9 @@ public class Menu extends JFrame implements ActionListener{
 		JButton displayHazards = new JButton("D");
 		
 		//Add hazard List and create combo box with hazardList.get(i)
-		JComboBox<Map<String, Double>> jcbVOHazards = new JComboBox<Map<String, Double>>();
-		for(int i = 0; i < hazardMap.size(); i++) {
-			jcbVOHazards.addItem(hazardMap);
+		JComboBox<String> jcbVOHazards = new JComboBox<String>();
+		for(int i = 0; i < hazardNames.size(); i++) {
+			jcbVOHazards.addItem(hazardNames.get(i));
 		}
 		
 		//objGrid || Row 5 || 
@@ -978,6 +940,11 @@ public class Menu extends JFrame implements ActionListener{
 		
 		//Add rsyle list and create combox with styleList.get(i);
 		//END OF objGrid
+		
+		//START OF summaryPanel
+		JTextArea summaryArea = new JTextArea();
+		summaryArea.setBorder(bLineBorder);
+		//END OF summarayPanel
 		
 		objGrid.add(voCyclist);
 		objGrid.add(createButtonPanel(displayCyclist, "Display > "));
@@ -993,7 +960,7 @@ public class Menu extends JFrame implements ActionListener{
 		
 		objGrid.add(voHazards);
 		objGrid.add(createButtonPanel(displayHazards, "Display > "));
-//		objGrid.add(jcbVOHazards);
+		objGrid.add(jcbVOHazards);
 		
 //		objGrid.add(voRStyle);
 //		objGrid.add(createButtonPanel(displayRStyle, "Display > "));
