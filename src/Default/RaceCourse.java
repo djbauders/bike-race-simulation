@@ -3,11 +3,10 @@
  */
 package Default;
 
-import java.awt.event.ActionListener;
 import java.util.*;
 
 /**
- * @author baude2d
+ * @author baude2d, dunha2j
  *
  */
 public class RaceCourse {
@@ -19,49 +18,52 @@ public class RaceCourse {
 	public double elevation; // height above sea level (meters)
 	public double maxElevation = 100;
 	public double slope;
-	static double hazardChance = 0.00005;
+	static double hazardChance = 0.00003;
 
 	public Weather weatherObj;
 	
 	public RaceCourse() throws Exception {}
 	
-	//Constructor not including Parameters
+
+	/**
+	 * @param name				String | Name of raceCourse
+	 * @param lengthInKM		double | Length of course in KM
+	 * @param slope				double | Initial slope
+	 * @param checkPoints		double | Number of checkpoints in course
+	 * @param weatherObj		Weather | Object from class Weather
+	 * @throws Exception		Exception handling
+	 */
 	public RaceCourse(String name, double lengthInKM, double slope, double checkPoints, Weather weatherObj) throws Exception {
 		if(lengthInKM <= 0) {
 			throw new Exception("Length is less than or equal to 0");
 		}
-		if(checkPoints <= 0) {
-			throw new Exception("Checkpoints less than or equal to 0");
-		}
-//		if(terrain == "" || hazard == "") {
-//			throw new Exception("Strings are empty");
-//		}
+
 		this.name = name;
 		this.lengthInKM = lengthInKM;
 		this.checkPoints = checkPoints;
-//		this.elevation = elevation;
 		this.slope = slope;
-//		this.terrain = terrain;
 		this.weatherObj = weatherObj;
 	}
 	
-	//Constructor Including Hazards
+	
+	/**
+	 * @param name				String | Name of raceCourse
+	 * @param lengthInKM		double | Length of course in KM
+	 * @param slope				double | Initial slope
+	 * @param checkPoints		double | Number of checkpoints in course
+	 * @param hazards			Map<String, Double> | Map of hazards
+	 * @param weatherObj		Weather | Object from class Weather
+	 * @throws Exception		Exception handling
+	 */
 	public RaceCourse(String name, double lengthInKM, double slope, double checkPoints, Map<String, Double> hazards, Weather weatherObj) throws Exception {
 		if(lengthInKM <= 0) {
 			throw new Exception("Length is less than or equal to 0");
 		}
-		if(checkPoints <= 0) {
-			throw new Exception("Checkpoints less than or equal to 0");
-		}
-//		if(terrain == "" || hazard == "") {
-//			throw new Exception("Strings are empty");
-//		}
+
 		this.name = name;
 		this.lengthInKM = lengthInKM;
 		this.checkPoints = checkPoints;
-//		this.elevation = elevation;
 		this.slope = slope;
-//		this.terrain = terrain;
 		this.hazards = hazards;
 		this.weatherObj = weatherObj;
 	}
@@ -101,6 +103,7 @@ public class RaceCourse {
 		return hazard;
 	}
 	
+	//Getters and setters for variables
 	public String getCourseName() {
 		return name;
 	}
@@ -161,7 +164,7 @@ public class RaceCourse {
 		this.weatherObj = weatherObj;
 	}
 
-	/*
+	/* Unimplemented hill generation
 	public ArrayList<Integer> generateHills(double lengthInKM, double checkPoints) {
 		//Creating hills and elevations
 		  ArrayList<Integer> cPList = new ArrayList<Integer>();

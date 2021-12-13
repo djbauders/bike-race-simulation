@@ -3,12 +3,10 @@ package Default;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Scanner;
-
-import javafx.util.Pair;
+//import java.util.Scanner;
 
 @FunctionalInterface
 interface Func {
@@ -65,6 +63,7 @@ public class Simulation{
 	 * *Cyclists are instantiated with a Bike Object to properly calculate the
 	 * effectiveDragArea.
 	 */
+	//loadDefaultItems from simulation testing before GUI implementation
 	public static void loadDefaultItems() {
 
 		//// BIKES////////////////////////////////////////////////////////////////////////////////////////////////////////////////

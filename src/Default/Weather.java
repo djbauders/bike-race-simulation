@@ -11,6 +11,12 @@ public class Weather {
 	public double tempInCelsius;
 	public String visibility;
 	
+	/**
+	 * @param precipitation		String | Type of precipitation (Functions as weather's name)
+	 * @param windSpeedMPS		double | Wind speed in meters per second
+	 * @param tempInCelsius		double | Temperature in degrees celcius
+	 * @param visibility		String | Visibility (No functionality currently)
+	 */
 	public Weather (String precipitation, double windSpeedMPS, double tempInCelsius, String visibility) {
 		this.precipitation = precipitation;
 		this.windSpeedMPS = windSpeedMPS;
@@ -18,6 +24,10 @@ public class Weather {
 		this.visibility = visibility;
 	}
 
+	/**
+	 * @param weather	Weather | Objects
+	 * @return			String  | Essential part of buildString method to simulate race
+	 */
 	public static String getWeatherString(Weather weather) {
 		String str = "";
 		str += (weather.getPrecipitation() + "\nWind Speed (MPS) = " + weather.getWindSpeedMPS() +
@@ -25,6 +35,8 @@ public class Weather {
 				weather.getVisibility());
 		return str;
 	}
+	
+	//Getters and setters
 	public String getPrecipitation() {
 		return precipitation;
 	}

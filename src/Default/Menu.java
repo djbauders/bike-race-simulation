@@ -1,13 +1,8 @@
-/**
- * 
- */
 package Default;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-//import java.util.Random;
 import java.util.Scanner;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -16,17 +11,9 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
-//import java.awt.Cursor;
-//import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-//import java.awt.BasicStroke;
-//import java.awt.Graphics;
-//import java.awt.Graphics2D;
 import java.awt.GridLayout;
-//import java.awt.Point;
-//import java.awt.RenderingHints;
-//import java.awt.Stroke;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,12 +24,12 @@ import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 
 /**
- * @author baude2d
- *
+ * @author baude2d, dunha2j
+ *	Main driver class, builds and launches GUI
  */
 public class Menu extends JFrame implements ActionListener{
-
 	
+	private static final long serialVersionUID = 1L;
 	ArrayList<String> raceNameList = new ArrayList<String>();
 	ArrayList<String> courseNameList = new ArrayList<String>();
 	static ArrayList<Bike> bikeList = new ArrayList<Bike>();
@@ -66,6 +53,7 @@ public class Menu extends JFrame implements ActionListener{
 	
 	static double currLength = 120;
 	static double currCP = 32;
+	static double currentElevation = 0;
 	
 	static int weatherIndex = 0;
 	static int courseIndex = 0;
@@ -95,29 +83,10 @@ public class Menu extends JFrame implements ActionListener{
 	JPanel jpBuildCyclist = new JPanel(new BorderLayout()); // Panel for building cyclists
 	JPanel jpBuildCourse = new JPanel(new BorderLayout()); // Panel for building a race course
 	JPanel jpViewObjs = new JPanel(new BorderLayout()); // Panel to view saved objects
-
-	// Menu JComponents and Global Variables
-	JButton jbtSaveRace, jbtRunSim, jbtCreateCourse, jbtCreateCyclist, jbtCreateBike, jbtSetWeather;
-	JLabel jlMenuTitle, jlRaceName, jlCourse, jlCyclist, jlBike, jlWeather;
-	JComboBox<String>  jcbCyclist, jcbBike, jcbWeather, jcbVOCyclist;
-	JComboBox<RaceCourse> jcbCourse;
-	String[] exampleStringArr = {"1", "2", "3", "test"};
-	JTextField jtfRaceName = new JTextField();
 	
-	// Course JComponents and Global Variables
-	JButton jbtSaveCourse, jbtSaveCName, jbtSaveLength, jbtSaveCP, jbtSaveME, jbtGenerateHills;
-	JLabel jlCourseName, jlLength, jlCP, jlMaxElevation, jlHills;
-	JComboBox<String> jcbSaveLength, jcbSaveCP, jcbSaveME;
-	JTextField jtfCourseName, jtfLength, jtfCP;
-	static JTextField jtfME;
-	JTextArea jtaHills;
-	
-	// Cyclist JComponents and Global Variables
-	JButton jbtRName, jbtRMass, jbtRHeight, jbtLinkEDA, jbtRFTP, jbtRStyle, jbtRBike;
-	JLabel jlCyclistName, jlCMass, jlCHeight, jlEDA, jlFTP, jlStyle, jlCBike, jlRiderStyle;
-	JComboBox<String> jcbStyle, jcbFTP, jcbCBike;
-	JTextField jtfCyclistName, jtfCMass, jtfCHeight, jtfEDA; 
-	
+	/**
+	 * @throws Exception
+	 */
 	public Menu() throws Exception {		
 		//Initializing JComponents
 		JComponent menuPage = createMenuPage();
@@ -128,8 +97,6 @@ public class Menu extends JFrame implements ActionListener{
 		
 		//Adding pages to card layout
 		jpMenuCard.add(menuPage, "Menu");
-		
-		//Action events/listeners
 		
 		//Add tabs
 		menuTabbedPane.addTab("Menu", menuPage);
@@ -149,6 +116,9 @@ public class Menu extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 	
+	/**			Loads default objects and adds them to ArrayList<Object>
+	 * @throws  Exception handling for cell renderers
+	 */
 	public static void loadDefaultObjects() throws Exception {
 		// Bike: /make/model/year/bikeMass(kg)/rollingResistanceCoe/frameMaterial/classification
 		bikeList.add(new Bike("Giant", "TCR Advanced Pro", 2021, 7.6, 0.00330, "Carbon", "Road Race"));
@@ -177,12 +147,14 @@ public class Menu extends JFrame implements ActionListener{
 		cyclistStyleList.add("Descender"); //Can still output wattage at up to 15% grade
 		
 		weatherList.add(new Weather("Clear", 0, 65, "Clear"));
-		weatherList.add(new Weather("Windy", 12, 54, "Clear"));
-		weatherList.add(new Weather("Rain", 3, 62, "Reduced"));
+		weatherList.add(new Weather("Windy", 5, 54, "Clear"));
+		weatherList.add(new Weather("Rain", 1.5, 62, "Reduced"));
 
-		courseList.add(new RaceCourse("Course 1", 120, 0, 32, hazardMap, weatherList.get(0)));
-		courseList.add(new RaceCourse("Course 2", 143, 0, 36, hazardMap, weatherList.get(1)));
-		courseList.add(new RaceCourse("Course 3", 92, 0, 29, hazardMap, weatherList.get(2)));
+		courseList.add(new RaceCourse("Flat / No effects", 120, 0, 32, hazardMap, weatherList.get(0)));
+		courseList.add(new RaceCourse("High winds", 143, 0, 36, hazardMap, weatherList.get(1)));
+		courseList.add(new RaceCourse("Rain / Slight wind", 92, 0, 29, hazardMap, weatherList.get(2)));
+		courseList.add(new RaceCourse("Slight Wind & Slope", 111, 2, 33, hazardMap, weatherList.get(2)));
+		courseList.add(new RaceCourse("Steep Slope", 111, 7, 33, hazardMap, weatherList.get(0)));
 		
 		hazardMap.put("Mechanical : Popped Tire", 25.0);
 		hazardMap.put("Mechanical : Snapped Chain", 15.0);
@@ -201,6 +173,10 @@ public class Menu extends JFrame implements ActionListener{
 	}
 	}
 	
+	/**
+	 * @param 	index - Index wanted from map
+	 * @return	String explaining hazard Objects
+	 */
 	public static String getHazardString(int index) {
 		String hName = hazardNames.get(index);
 		double hVal = hazardValues.get(index);
@@ -210,9 +186,18 @@ public class Menu extends JFrame implements ActionListener{
 		return str;
 	}
 	
+	/**
+	 * Cell renderers to display a string representing each element of JComboBoxes of type Obj
+	 *
+	 */
 	public class CyclistListCellRenderer extends DefaultListCellRenderer {
 
-	    public Component getListCellRendererComponent(
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public Component getListCellRendererComponent(
 	                                   JList<?> list,
 	                                   Object value,
 	                                   int index,
@@ -225,9 +210,13 @@ public class Menu extends JFrame implements ActionListener{
 	        return this;
 	    }
 	}
-	
 	public class BikeListCellRenderer extends DefaultListCellRenderer {
-	    public Component getListCellRendererComponent(
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public Component getListCellRendererComponent(
                 JList<?> list,
                 Object value,
                 int index,
@@ -240,9 +229,13 @@ public class Menu extends JFrame implements ActionListener{
 	    	return this;
 }
 }
-	
 	public class CourseListCellRenderer extends DefaultListCellRenderer {
-	    public Component getListCellRendererComponent(
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public Component getListCellRendererComponent(
                 JList<?> list,
                 Object value,
                 int index,
@@ -255,9 +248,13 @@ public class Menu extends JFrame implements ActionListener{
 	    	return this;
 }
 }
-	
 	public class WeatherListCellRenderer extends DefaultListCellRenderer {
-	    public Component getListCellRendererComponent(
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public Component getListCellRendererComponent(
                 JList<?> list,
                 Object value,
                 int index,
@@ -272,6 +269,11 @@ public class Menu extends JFrame implements ActionListener{
 }
 	
 	
+	/**
+	 * @param 	jbtButton	
+	 * @param 	String text | Label for button
+	 * @return	A JPanel to resize and label buttons
+	 */
 	public JPanel createButtonPanel(JButton jbtButton, String text) {
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		buttonPanel.setBackground(maroon);
@@ -284,24 +286,29 @@ public class Menu extends JFrame implements ActionListener{
 		return buttonPanel;
 	}
 	
-	public JPanel create2ButtonPanel(JButton jbtButton,JButton jbtButton2, String text, String text2) {
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		buttonPanel.setBackground(maroon);
-		JLabel jlLabel = new JLabel(text);
-		JLabel jlLabel2 = new JLabel(text2);
-		jlLabel.setFont(tinyTNR);
-		jlLabel2.setFont(tinyTNR);
-		jlLabel.setForeground(gold);
-		jlLabel2.setForeground(gold);
-		jbtButton.setSize(5,5);
-		jbtButton2.setSize(5,5);
-		buttonPanel.add(jlLabel);
-		buttonPanel.add(jbtButton);
-		buttonPanel.add(jlLabel2);
-		buttonPanel.add(jbtButton2);
-		return buttonPanel;
-	}
+//	No longer used in implementation
+//	public JPanel create2ButtonPanel(JButton jbtButton,JButton jbtButton2, String text, String text2) {
+//		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+//		buttonPanel.setBackground(maroon);
+//		JLabel jlLabel = new JLabel(text);
+//		JLabel jlLabel2 = new JLabel(text2);
+//		jlLabel.setFont(tinyTNR);
+//		jlLabel2.setFont(tinyTNR);
+//		jlLabel.setForeground(gold);
+//		jlLabel2.setForeground(gold);
+//		jbtButton.setSize(5,5);
+//		jbtButton2.setSize(5,5);
+//		buttonPanel.add(jlLabel);
+//		buttonPanel.add(jbtButton);
+//		buttonPanel.add(jlLabel2);
+//		buttonPanel.add(jbtButton2);
+//		return buttonPanel;
+//	}
 	
+	/**
+	 * @return	String | A random name from popular m/f baby names
+	 * @throws 	FileNotFoundException
+	 */
 	public String generateRandomCyclistName() throws FileNotFoundException {
 		File rNames = new File("rNames.txt");
 		Scanner sr = new Scanner(rNames);
@@ -315,33 +322,43 @@ public class Menu extends JFrame implements ActionListener{
 		return namesList.get((int) randomNum);
 	}
 	
+	/**			Average mass in kg for the USA = 80 == 177 lbs
+	 * @return	String from double randomMass | returns +- 20 kg from average
+	 */
 	public String generateRandomCyclistMass() {
 		String str = "";
-		//Average mass in kg for the USA = 80 == 177 lbs
-		//random mass returns +- 20 kg from average
 		double randomMass = ((int) (Math.random() * (100 - 60) + 60));
 		return str + randomMass;
 	}
 	
+	/**			Average height in cm for the USA is approximately 169cm
+	 * @return 	String from double randomHeight | returns +- 30 cm from the average
+	 */
 	public String generateRandomCyclistHeight() {
 		String str = "";
-		//Average height in cm for the USA is approximately 169cm
-		//randomHeight returns +- 30 cm from the average
 		double randomHeight = ((int) (Math.random() * (199 - 139) + 139));
 		return str + randomHeight;
 	}
 
 	
+	/**
+	 * @param 	numIterations | Number of iterations (seconds passed in race)
+	 * @return	String clock | Converting seconds to Hours:Minutes:Seconds
+	 */
 	public String buildClock(int numIterations) {
 		String clock = "";
 		int p1 = numIterations % 60;
 		int p2 = numIterations / 60;
 		int p3 = p2 % 60;
 		p2 = p2 / 60;
-		clock = " " + p2 + ":" + p3 + ":" + p1 + "\t\t" + rName + "\n\n";
+		clock = " " + p2 + ":" + p3 + ":" + p1 + "\n\n";
 		return clock;
 	}
 
+	/**
+	 * @param 	numIterations | Number of iterations (seconds passed in race)
+	 * @return	String results | Builds a string that represents data from race in real time
+	 */
 	public String buildString(int numIterations) {
 		String results = "";
 		double distance = 0;
@@ -382,7 +399,6 @@ public class Menu extends JFrame implements ActionListener{
 			}
 		}
 		}
-//		System.out.println(iterations);
 		if(cyclistList.size() > 0) {
 		results += " ================================================ \n" +
 					" Name         |     Distance(km)    |    Velocity(m/s)   |    Power(Watts)\n" 
@@ -412,6 +428,10 @@ public class Menu extends JFrame implements ActionListener{
 		return results;
 	}
 	
+	/**
+	 * @return	Panel of JComponents for menuPage
+	 * @throws 	Exception handling for cell renderer
+	 */
 	public JComponent createMenuPage() throws Exception {
 		JPanel menuPage = new JPanel();
 		menuPage.setLayout(new GridLayout(0,1,30,30));
@@ -442,7 +462,6 @@ public class Menu extends JFrame implements ActionListener{
 				jtfRaceName.setText("Race " + nPlusOne);
 			}
 		});
-		
 		//menuGrid || Row 2 || Race Course
 		JLabel jlCourse = new JLabel("Race Course");
 		jlCourse.setFont(tnr);
@@ -475,19 +494,16 @@ public class Menu extends JFrame implements ActionListener{
 				menuTabbedPane.setSelectedIndex(2);
 			}
 		});
-		
+
 		JComboBox<Cyclist> jcbCyclist = new JComboBox<Cyclist>();
 		for(int i = 0; i < cyclistList.size(); i++) {
 			jcbCyclist.addItem(cyclistList.get(i));
 		}
-
 		jcbCyclist.setBorder(bLineBorder);
 		jcbCyclist.setRenderer(new CyclistListCellRenderer());
-
 		//END OF menuGrid
 		
 		//START OF menuBPanel
-		
 		//menuBPanel || Row 1 || Save Race
 		JButton jbtRefresh = new JButton("Refresh CB's");
 		jbtRefresh.addActionListener(new ActionListener() { 
@@ -522,8 +538,7 @@ public class Menu extends JFrame implements ActionListener{
 		});
 		//END OF menuBPanel
 		
-		//add components
-
+		//Adding JComponents to menuPage
 		//R1
 		menuGrid.add(jlRaceName);
 		menuGrid.add(createButtonPanel(jbtRaceName, "Generate Name > "));
@@ -538,12 +553,10 @@ public class Menu extends JFrame implements ActionListener{
 		menuGrid.add(jcbCyclist);
 		
 		menuPage.add(menuGrid);
-		
 		//R1
 		menuBPanel.add(jbtRefresh);
 		menuBPanel.add(jbtSaveRaceName);
 		menuBPanel.add(jbtRunSim);
-		
 		
 		menuPage.add(menuBPanel);
 		
@@ -552,6 +565,9 @@ public class Menu extends JFrame implements ActionListener{
 		return menuPage;
 	}
 	
+	/**
+	 * @return	Panel containing JComponents for coursePage
+	 */
 	public JComponent createCoursePage() {
 		JPanel coursePage = new JPanel();
 		coursePage.setLayout(new GridLayout(0,1,30,30));
@@ -573,14 +589,14 @@ public class Menu extends JFrame implements ActionListener{
 		jlCourseName.setForeground(gold);
 		jlCourseName.setBackground(maroon);
 		
-		JButton jbtRCName = new JButton("R");
+		JButton jbtRCName = new JButton("G");
 
 		JTextField jtfCourseName = new JTextField();
 		jtfCourseName.setBorder(gLineBorder);
 
 		jbtRCName.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-				int nPlusOne = courseList.size() + 1;
+				int nPlusOne = courseList.size() - 4;
 				jtfCourseName.setText("Course " + nPlusOne);
 				
 			}
@@ -593,7 +609,7 @@ public class Menu extends JFrame implements ActionListener{
 		jlLength.setForeground(gold);
 		jlLength.setBackground(maroon);
 		
-		JButton jbtDefaultLength = new JButton("+");
+		JButton jbtDefaultLength = new JButton("D");
 		
 		JTextField jtfLength = new JTextField();
 		jtfLength.setBorder(bLineBorder);
@@ -609,7 +625,7 @@ public class Menu extends JFrame implements ActionListener{
 		jlCP.setForeground(gold);
 		jlCP.setBackground(maroon);
 		
-		JButton jbtDefaultCP = new JButton("+");
+		JButton jbtDefaultCP = new JButton("D");
 		
 		JTextField jtfCP = new JTextField();
 		jtfCP.setBorder(bLineBorder);
@@ -625,7 +641,7 @@ public class Menu extends JFrame implements ActionListener{
 		jlME.setForeground(gold);
 		jlME.setBackground(maroon);
 		
-		JButton jbtDefaultME = new JButton("+");
+		JButton jbtDefaultME = new JButton("D");
 		
 		JTextField jtfME = new JTextField();
 		jtfME.setBorder(bLineBorder);
@@ -656,7 +672,25 @@ public class Menu extends JFrame implements ActionListener{
 			}
 		});
 
-		//course Grid || Row 6 || Save Course button
+		//courseGrid || Row 6 || Slope
+		JLabel jlSlope = new JLabel("Slope");
+		jlSlope.setFont(tnr);
+		jlSlope.setForeground(gold);
+		jlSlope.setBackground(maroon);
+		
+		JButton jbtRSlope = new JButton("R");
+		
+		JTextField jtfSlope = new JTextField();
+		jtfSlope.setBorder(bLineBorder);
+		
+		jbtRSlope.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {
+				double i = ((Math.random() * ((10 + 1) - 1)) + 1);
+				jtfSlope.setText("" + df.format(i));
+			}
+		});
+		
+		//course Grid || Row 7 || Save Course button w/ spacers
 		JTextField space1 = new JTextField();
 		space1.setEditable(false);
 		space1.setBorder(null);
@@ -673,15 +707,18 @@ public class Menu extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e) {
 				double length = Double.parseDouble(jtfLength.getText());
 				double checkPoints = Double.parseDouble(jtfCP.getText());
+				double slope = Double.parseDouble(jtfSlope.getText());
+				
 				int wlIndex = jcbWeather.getSelectedIndex();
 				try {
-					courseList.add(new RaceCourse(jtfCourseName.getText(), length, 0, checkPoints, hazardMap,  weatherList.get(wlIndex)));
+					courseList.add(new RaceCourse(jtfCourseName.getText(), length, slope, checkPoints, hazardMap,  weatherList.get(wlIndex)));
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}
 		});
 		//END OF courseGrid		
+		//Adding JComponents to coursePage
 		//R1
 		courseGrid.add(jlCourseName);
 		courseGrid.add(createButtonPanel(jbtRCName, "Generate Name > "));
@@ -702,20 +739,23 @@ public class Menu extends JFrame implements ActionListener{
 		courseGrid.add(jlWeather);
 		courseGrid.add(createButtonPanel(jbtRWeather, "Random Weather > "));
 		courseGrid.add(jcbWeather);
-
-		//R6 with blank text fields to fill space
+		//R6
+		courseGrid.add(jlSlope);
+		courseGrid.add(createButtonPanel(jbtRSlope, "Random slope (1-10) > "));
+		courseGrid.add(jtfSlope);
+		//R7 with blank text fields to fill space
 		courseGrid.add(space1);
 		courseGrid.add(space2);
 		courseGrid.add(jbtSaveCourse);
-		
-		
-
 		
 		coursePage.add(courseGrid);
 		coursePage.add(graphPanel);
 		return coursePage;
 	}
 	
+	/**
+	 * @return	Panel containing JComponents for cyclistPage
+	 */
 	public JComponent createCyclistPage() {
 		JPanel cyclistPage = new JPanel();
 		cyclistPage.setLayout(new GridLayout(0,1,30,30));
@@ -894,9 +934,8 @@ public class Menu extends JFrame implements ActionListener{
 				
 			}
 		});
-		//Be sure to append menu cyclist list
 		//END OF cyclistBGrid
-		
+		//Adding JComponents to cyclistPage
 		//R1
 		cyclistGrid.add(jlCyclistName);
 		cyclistGrid.add(createButtonPanel(jbtRName,"Random Name > "));
@@ -925,9 +964,6 @@ public class Menu extends JFrame implements ActionListener{
 		cyclistGrid.add(jlAirCo);
 		cyclistGrid.add(createButtonPanel(jbtLAC, "Link to calculator > "));
 		cyclistGrid.add(jtfADC);
-//		cyclistGrid.add(jlRiderStyle);
-//		cyclistGrid.add(createButtonPanel(jbtRStyle, "Random Style > "));
-//		cyclistGrid.add(jcbRStyle);
 		
 		//R1
 		cyclistBPanel.add(space3);
@@ -939,6 +975,9 @@ public class Menu extends JFrame implements ActionListener{
 		return cyclistPage;
 	}
 	
+	/**
+	 * @return		Panel containing elements for viewObjectsPage
+	 */
 	public JComponent createViewObjectsPage() {
 		JPanel viewObjectsPage = new JPanel();
 		viewObjectsPage.setLayout(new GridLayout(0,1,30,30));
@@ -953,7 +992,7 @@ public class Menu extends JFrame implements ActionListener{
 		viewObjectsPage.setBorder(objTitle);
 		
 		//START OF objGrid
-		//objGrid || Row 1 || 
+		//objGrid || Row 1 || Default Cyclists
 		JLabel voCyclist = new JLabel("Default Cyclists");
 		voCyclist.setFont(tnr);
 		voCyclist.setForeground(gold);
@@ -965,8 +1004,7 @@ public class Menu extends JFrame implements ActionListener{
 			jcbVOCyclist.addItem(cyclistList.get(i));
 		}
 		jcbVOCyclist.setRenderer(new CyclistListCellRenderer());
-
-		//objGrid || Row 2 ||
+		//objGrid || Row 2 || Default Bikes
 		JLabel voBike = new JLabel("Default Bikes");
 		voBike.setFont(tnr);
 		voBike.setForeground(gold);
@@ -978,7 +1016,7 @@ public class Menu extends JFrame implements ActionListener{
 			jcbVOBike.addItem(bikeList.get(i));
 		}
 		jcbVOBike.setRenderer(new BikeListCellRenderer());
-		//objGrid || Row 3 ||
+		//objGrid || Row 3 || Default Weather Conditions3
 		JLabel voWeather = new JLabel("Default Weather Conditions");
 		voWeather.setFont(tnr);
 		voWeather.setForeground(gold);
@@ -990,14 +1028,13 @@ public class Menu extends JFrame implements ActionListener{
 			jcbVOWeather.addItem(weatherList.get(i));
 		}
 		jcbVOWeather.setRenderer(new WeatherListCellRenderer());
-		//objGrid || Row 4 ||
+		//objGrid || Row 4 || Default Hazards
 		JLabel voHazards = new JLabel("Default Hazards");
 		voHazards.setFont(tnr);
 		voHazards.setForeground(gold);
 		
 		JButton displayHazards = new JButton("D");
 		
-		//Add hazard List and create combo box with hazardList.get(i)
 		JComboBox<String> jcbVOHazards = new JComboBox<String>();
 		for(int i = 0; i < hazardNames.size(); i++) {
 			jcbVOHazards.addItem(hazardNames.get(i));
@@ -1006,10 +1043,11 @@ public class Menu extends JFrame implements ActionListener{
 		
 		//START OF summaryPanel
 		JTextArea summaryArea = new JTextArea();
+		summaryArea.setText("Objects and their values will appear here!");
 		summaryArea.setBorder(bLineBorder);
 		summaryArea.setFont(tnr);
 		//END OF summarayPanel
-		
+		//Display button action listeners(have to come after the JTA)
 		displayCyclist.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
 				int index = jcbVOCyclist.getSelectedIndex();
@@ -1038,7 +1076,7 @@ public class Menu extends JFrame implements ActionListener{
 				summaryArea.setText(str);
 			}
 		});
-		
+		//Adding JComponents to viewObjectsPage
 		objGrid.add(voCyclist);
 		objGrid.add(createButtonPanel(displayCyclist, "Display > "));
 		objGrid.add(jcbVOCyclist);
@@ -1062,6 +1100,9 @@ public class Menu extends JFrame implements ActionListener{
 		return viewObjectsPage;
 	}
 	
+	/**
+	 * @return 	Panel containing JComponents for simulationPage
+	 */
 	public JComponent createSimulationPage() {
 		JPanel simulationPage = new JPanel();
 		simulationPage.setLayout(new GridLayout(0,1,30,30));
@@ -1089,7 +1130,12 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbtOneSecond = new JButton(">");
 		jbtOneSecond.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-//				iterations += 1;
+				if(currentElevation >= currentRace.getMaxElevation()) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
+				if(currentElevation < 0) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
 				String str = buildString(1);
 				String clock = buildClock(iterations);
 
@@ -1099,7 +1145,12 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbt30Seconds = new JButton(">>");
 		jbt30Seconds.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-//				iterations += 30;
+				if(currentElevation >= currentRace.getMaxElevation()) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
+				if(currentElevation < 0) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
 				String str = buildString(30);
 				String clock = buildClock(iterations);
 
@@ -1109,7 +1160,12 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbt5Minutes = new JButton(">>>");
 		jbt5Minutes.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-//				iterations += 300;
+				if(currentElevation >= currentRace.getMaxElevation()) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
+				if(currentElevation < 0) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
 				String str = buildString(300);
 				String clock = buildClock(iterations);
 
@@ -1119,17 +1175,21 @@ public class Menu extends JFrame implements ActionListener{
 		JButton jbt30Minutes = new JButton(">>>>");
 		jbt30Minutes.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {
-//				iterations += 1800;
+				if(currentElevation >= currentRace.getMaxElevation()) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
+				if(currentElevation < 0) {
+					currentRace.setSlope(-1 * currentRace.getSlope());
+				}
 				String str = buildString(1800);
 				String clock = buildClock(iterations);
 
 				jtaSimulation.setText(clock + str);
 			}
 		});
-		
 		//END OF simButtonPanel
 		
-		
+		//Adding JComponents to simulationPage
 		viewSimPanel.add(jtaSimulation);
 		simButtonPanel.add(createButtonPanel(jbtOneSecond,"One second > "));
 		simButtonPanel.add(createButtonPanel(jbt30Seconds, "30 Seconds > "));
@@ -1146,7 +1206,6 @@ public class Menu extends JFrame implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 }
